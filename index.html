@@ -124,6 +124,14 @@
         filter: drop-shadow(2px 3px 5px rgba(0,0,0,.15));
       }
 
+      hr {
+        margin-left: -30px;
+        margin-right: -50px;
+        background-color: #c0c0c0;
+        border: none;
+        height: 2px;
+      }
+
     </style>
 
   </head>
@@ -142,17 +150,22 @@
               </div>
               <div class="offcanvas-body">
               <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                <li class="menu-item mb-4">
+                <li class="menu-item">
+                  <hr>
                   <a class="nav-link" href="#"><i class="home-icon"></i><span id="icon-text">Home</span></a>
+                  <hr>
                 </li>
-                <li class="menu-item mb-4">
+                <li class="menu-item">
                   <a class="nav-link" href="#"><i class="profile-icon"></i><span id="icon-text">Profile</span></a>
+                  <hr>
                 </li>
-                <li class="menu-item mb-4">
+                <li class="menu-item">
                   <a class="nav-link" href="#"><i class="settings-icon"></i><span id="icon-text">Settings</span></a> <!-- put dark mode toggle in settings -->
+                  <hr>
                 </li>
                 <li class="menu-item">
                   <a class="nav-link" href="#"><i class="about-icon"></i><span id="icon-text">About</span></a>
+                  <hr>
                 </li>
               </ul>
             </div>
@@ -181,7 +194,7 @@
         <div class="card rounded-4 mt-4">
           <div class="form-group has-search">
             <i class="fa fa-search fa-lg form-control-feedback"></i>
-            <input type="search" class="form-control form-control-lg rounded-4" placeholder="Search..">
+            <input type="search" class="form-control form-control-lg rounded-4" placeholder="Search for a topic...">
           </div>
         </div>
       </div>
