@@ -8,7 +8,7 @@
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 		<style>
 			.navs {
-				margin-bottom: 5%;
+				margin-bottom: 40px;
 			}
 
 			.nav-item {
@@ -97,6 +97,45 @@
 				border: none;
 				height: 2px;
 			}
+
+			.flex {
+				display: flex;
+				flex-wrap: wrap;
+				flex-direction: column;
+				align-items: center;
+			}
+
+			.card {
+				width: 50%;
+				filter: drop-shadow(2px 3px 5px rgba(0, 0, 0, 0.15));
+				transition: 0.3s;
+			}
+
+			.card:hover {
+				transform: scale(1.0175);
+				filter: drop-shadow(2px 3px 5px rgba(0, 0, 0, 0.25));
+				opacity: 0.65;
+			}
+
+			.card-header {
+				font-size: 21px;
+				text-align: center;
+				font-weight: 600;
+				padding-top: 20px;
+				padding-bottom: 20px;
+			}
+
+			.fa-search {
+				color: #aaa;
+				position: relative;
+				bottom: 2px;
+				right: 14px;
+				font-size: 24px;
+			}
+
+			.list-group-item {
+				font-size: 18px;
+			}
 		</style>
 	</head>
 	<body style="background-image: url(/static/bg.png)">
@@ -152,6 +191,93 @@
 				</ul>
 			</div>
 			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+			<div class="flex">
+				<div class="card rounded-3 mb-5">
+					<a href="/search.html" style="text-decoration: none; color: black;">
+						<div class="card-header">
+							<i class="fa fa-search fa-lg"></i>
+							<span>Lorem ipsum dolor sit amet, consectetur adipiscing elit</span>
+						</div>
+						<ul class="list-group list-group-flush">
+							<li class="list-group-item">
+								<p>
+									Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+									commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
+									id est laborum.
+								</p>
+							</li>
+						</ul>
+					</a>
+				</div>
+				<div class="card rounded-3 mb-5">
+					<a href="/search.html" style="text-decoration: none; color: black;">
+						<div class="card-header">
+							<i class="fa fa-search fa-lg"></i>
+							<span>Lorem ipsum dolor sit amet, consectetur adipiscing elit</span>
+						</div>
+						<ul class="list-group list-group-flush">
+							<li class="list-group-item">
+								<p>
+									Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+									commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
+									id est laborum.
+								</p>
+							</li>
+						</ul>
+					</a>
+				</div>
+				<div class="card rounded-3 mb-5">
+					<a href="/search.html" style="text-decoration: none; color: black;">
+						<div class="card-header">
+							<i class="fa fa-search fa-lg"></i>
+							<span>Lorem ipsum dolor sit amet, consectetur adipiscing elit</span>
+						</div>
+						<ul class="list-group list-group-flush">
+							<li class="list-group-item">
+								<p>
+									Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+									commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
+									id est laborum.
+								</p>
+							</li>
+						</ul>
+					</a>
+				</div>
+				<div class="card rounded-3 mb-5">
+					<a href="/search.html" style="text-decoration: none; color: black;">
+						<div class="card-header">
+							<i class="fa fa-search fa-lg"></i>
+							<span>Lorem ipsum dolor sit amet, consectetur adipiscing elit</span>
+						</div>
+						<ul class="list-group list-group-flush">
+							<li class="list-group-item">
+								<p>
+									Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+									commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
+									id est laborum.
+								</p>
+							</li>
+						</ul>
+					</a>
+				</div>
+				<div class="card rounded-3 mb-5">
+					<a href="/search.html" style="text-decoration: none; color: black;">
+						<div class="card-header">
+							<i class="fa fa-search fa-lg"></i>
+							<span>Lorem ipsum dolor sit amet, consectetur adipiscing elit</span>
+						</div>
+						<ul class="list-group list-group-flush">
+							<li class="list-group-item">
+								<p>
+									Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+									commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
+									id est laborum.
+								</p>
+							</li>
+						</ul>
+					</a>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>
