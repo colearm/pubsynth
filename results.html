@@ -108,10 +108,11 @@
 				display: flex;
 				flex-wrap: wrap;
 				flex-direction: column;
+				justify-content: center;
 				align-items: center;
 			}
 
-			.card {
+			#result-card {
 				width: 50%;
 				filter: drop-shadow(2px 3px 5px rgba(0, 0, 0, 0.15));
 				transition: 0.3s;
@@ -138,7 +139,7 @@
 				padding-left: 3rem;
 			}
 
-			.list-group-item {
+			#result-item {
 				font-size: 18px;
 			}
 
@@ -179,6 +180,15 @@
 				z-index: 1;
 				display: inline-block;
 				position: relative;
+			}
+
+			#more-options {
+				height: 100%;
+				filter: drop-shadow(2px 3px 5px rgba(0, 0, 0, 0.15));
+			}
+
+			#more-item {
+				font-size: 16px;
 			}
 		</style>
 	</head>
@@ -222,13 +232,13 @@
 			</div>
 			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
 			<div class="flex">
-				<div class="card rounded-3 mb-5">
+				<div class="card rounded-3 mb-5" id="result-card">
 					<div class="card-header">
 						<i class="fa fa-search fa-lg"></i>
 						<span class="search-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit</span>
 					</div>
 					<ul class="list-group list-group-flush">
-						<li class="list-group-item">
+						<li class="list-group-item" id="result-item">
 							<p>
 								Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Consequat interdum varius sit amet mattis vulputate enim nulla aliquet. Ac placerat vestibulum
 								lectus mauris ultrices eros. Et malesuada fames ac turpis egestas. Enim nunc faucibus a pellentesque sit. In tellus integer feugiat scelerisque varius morbi enim. Amet facilisis magna etiam tempor orci. Amet mauris
@@ -255,6 +265,13 @@
 							<i class="arrow-icon" style="rotate: 180deg; top: 3px"></i>
 						</a>
 					</div>
+				</div>
+				<div class="card rounded-3" id="more-options">
+					<ul class="list-group list-group-flush">
+						<li class="list-group-item" id="more-item">Add to favorites</li>
+						<li class="list-group-item" id="more-item">Download summary</li>
+						<li class="list-group-item" id="more-item">Share summary</li>
+					</ul>
 				</div>
 			</div>
 		</div>
