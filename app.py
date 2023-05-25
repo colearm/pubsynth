@@ -40,7 +40,9 @@ def get_abstracts(medline):
     return abstract_list
 
 
-query = input("Search query: ")
+query = input("Search query: ")  # simulating search bar entry for now
+if query == "":
+    exit()
 esearch_params = {"db": "pubmed", "term": query, "retmax": "5", "retmode": "json", "sort": "relevance"}
 esearch = requests.get("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi", params=esearch_params)
 pmids = ','.join(esearch.json()['esearchresult']['idlist'])
