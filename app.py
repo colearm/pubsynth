@@ -68,7 +68,7 @@ openai.apikey = os.getenv("OPENAI_API_KEY")
 prompt = """Synthesize the key pieces of information from the following research paper abstracts into one coherent summary that is comprehensible to the average person. 
 Each abstract you are being given starts with #####. Use this to help you isolate the topics of each abstract to create a more intelligible summary.
 Your summary shold be around 10 sentences long: """
-"""
+
 gpt_response = openai.ChatCompletion.create(
     model="gpt-3.5-turbo",
     messages=[
@@ -81,4 +81,3 @@ gpt_response = openai.ChatCompletion.create(
 result = gpt_response["choices"][0]["message"]["content"]
 print(result)
 print("===========================")
-"""
