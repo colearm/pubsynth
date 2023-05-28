@@ -301,21 +301,23 @@
 				<div class="card rounded-3 mb-5" id="result-card">
 					<div class="card-header">
 						<i class="fa fa-search fa-lg"></i>
-						<span class="search-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit</span>
+						<span class="search-text">{{ query }}</span>
 					</div>
 					<ul class="list-group list-group-flush">
 						<li class="list-group-item" id="result-item">
-							<p>{{result}}</p>
+							<p>{{ result }}</p>
 						</li>
 					</ul>
 					<div class="card-footer">
-						<a class="arrow-link" href="#" title="Increase level of detail">
-							<i class="arrow-icon"></i>
-						</a>
+						<form action="#" method="post">
+							<button class="arrow-link arrow-icon" type="submit" name="increase" value=1 title="Increase level of detail">
+						</form>
 						<span class="detail">Level of detail</span>
-						<a class="arrow-link" href="#" title="Decrease level of detail">
-							<i class="arrow-icon" style="rotate: 180deg; top: 3px"></i>
-						</a>
+						<form action="#" method="post">
+							<a class="arrow-link" href="#" name="decrease" title="Decrease level of detail">
+								<i class="arrow-icon" style="rotate: 180deg; top: 3px"></i>
+							</a>
+						</form>
 					</div>
 				</div>
 				<div class="card rounded-3" id="more-options">
