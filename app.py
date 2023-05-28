@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, session
 from flask_session import Session
 import requests
 import os
@@ -15,13 +15,13 @@ openai.apikey = os.getenv("OPENAI_API_KEY")
 @app.route("/", methods=["POST", "GET"])
 def search():
     if request.method == "POST":
-        query = request.form["query"] # get search query from search bar
+        query = request.form["query"]  # get search query from search bar
         session["query"] = query
-        pmids = get_pmids(query) # get pmids from search query
+        pmids = get_pmids(query)  # get pmids from search query
         session["pmids"] = pmids
-        abstracts = get_abstracts(pmids) # get abstracts from pmids
+        abstracts = get_abstracts(pmids)  # get abstracts from pmids
         session["abstracts"] = abstracts
-        summary = get_summary(abstracts) # get summary from abstracts
+        summary = get_summary(abstracts)  # get summary from abstracts
         session["result"] = summary
         return redirect("/results")
     return render_template("search.html")
@@ -39,11 +39,12 @@ def favorites():
 
 @app.route("/results", methods=["POST", "GET"])
 def results():
-    query = session["query"] # query is the same regardless of level of detail
+    query = session["query"]  # query is the same regardless of level of detail
     if request.method == "POST":
-        detail = 1 if request.form["increase"] else -1 # detail = 1 ~ increase, detail = -1 ~ decrease
+        # detail = 1 ~ increase, detail = -1 ~ decrease
+        detail = 1 if "increase" in request.form else -1
         summary = get_summary(session["abstracts"], detail)
-        session["result"] = summary # update session variable
+        session["result"] = summary  # update session variable
         return render_template("results.html", query=query, result=summary)
     result = session["result"]
     return render_template("results.html", query=query, result=result)
@@ -66,32 +67,39 @@ def parse_abstracts(medline):
 
 
 def get_pmids(query):
-    esearch_params = {"db": "pubmed", "term": query, "retmax": "3", "retmode": "json", "sort": "relevance"}
-    esearch = requests.get("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi", params=esearch_params)
+    esearch_params = {"db": "pubmed", "term": query,
+                      "retmax": "3", "retmode": "json", "sort": "relevance"}
+    esearch = requests.get(
+        "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi", params=esearch_params)
     return ','.join(esearch.json()['esearchresult']['idlist'])
 
 
 def get_abstracts(pmids):
-    efetch_params = {"db": "pubmed", "id": pmids, "rettype": "medline", "retmode": "text"}
-    efetch = requests.get("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi", params=efetch_params)
+    efetch_params = {"db": "pubmed", "id": pmids,
+                     "rettype": "medline", "retmode": "text"}
+    efetch = requests.get(
+        "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi", params=efetch_params)
     return parse_abstracts(efetch.text)
 
 
 def get_summary(abstracts, detail=0):
-    summary = session["result"]
     if detail == 0:
         prompt = """Synthesize the key pieces of information from the following research paper abstracts into one coherent summary that is comprehensible to the average person. 
-        Each abstract you are being given starts with #####. Use this to help you isolate the topics of each abstract to create a more intelligible summary.
+        Each abstract you are being given starts with #####. Use this to help you isolate the topics of each abstract to create a more intelligible summary. 
         Your summary should be around 10 sentences long: """
     elif detail == 1:
-        prompt = f"""Synthesize the key pieces of information from the following research paper abstracts into one coherent summary that is comprehensible to the average person. 
-        Each abstract you are being given starts with #####. Use this to help you isolate the topics of each abstract to create a more intelligible summary. The summary you gave
-        last time was: {summary}. Use details from the following abstracts to create a new summary with an increased level of detail and response length compared to last time: """
+        summary = session["result"]
+        prompt = f"""Synthesize the key pieces of information from the following research paper abstracts into one coherent summary that is comprehensible to the average person. The 
+        summary you gave last time was: {summary}. Use details from the following abstracts to create a new summary with an increased level of detail and technicality. Your #1  
+        priority is to make your response is at least 20% longer than your last summary in terms of characters used. Each abstract begins with #####: """
     else:
-        prompt = f"""Synthesize the key pieces of information from the following research paper abstracts into one coherent summary that is comprehensible to the average person. 
-        Each abstract you are being given starts with #####. Use this to help you isolate the topics of each abstract to create a more intelligible summary. The summary you gave
-        last time was: {summary}. Use the following abstracts to create a new summary with a decreased level of detail and response length compared to last time: """
+        summary = session["result"]
+        prompt = f"""Synthesize the key pieces of information from the following research paper abstracts into one coherent summary that is comprehensible to the average person. The 
+        summary you gave last time was: {summary}. Use the following abstracts to create a new, more generalized summary with a decreased level of detail and shorter response length 
+        compared to last time. Each abstract begins with #####: """
     
+    print(prompt)
+
     gpt_response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -102,6 +110,7 @@ def get_summary(abstracts, detail=0):
         ]
     )
     return gpt_response["choices"][0]["message"]["content"]
+
 
 if __name__ == "__main__":
     app.run(debug=True)

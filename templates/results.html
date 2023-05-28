@@ -139,7 +139,7 @@
 				font-size: 24px;
 				width: 2rem;
 				height: 2rem;
-				line-height: 2rem;
+				line-height: 1.95rem;
 			}
 
 			.search-text {
@@ -152,7 +152,9 @@
 
 			.card-footer {
 				font-size: 18px;
-				text-align: center;
+				display: flex;
+				justify-content: center;
+				align-items: center;
 				font-weight: 600;
 				padding-top: 5px;
 				padding-bottom: 5px;
@@ -162,10 +164,10 @@
 				background: url(/static/arrow-icon.png);
 				height: 32px;
 				width: 32px;
-				display: inline-block;
 				position: relative;
-				top: 3px;
 				scale: 0.65;
+				border: none;
+				top: 2px;
 			}
 
 			.arrow-icon:hover {
@@ -174,17 +176,15 @@
 			}
 
 			.detail {
-				position: relative;
-				bottom: 6px;
-				padding-left: 10px;
-				padding-right: 10px;
+				padding-left: 20px;
+				padding-right: 20px;
+				padding-bottom: 3px;
 			}
 
 			.arrow-link {
 				padding: 0.25em;
 				margin: -0.25em;
 				z-index: 1;
-				display: inline-block;
 				position: relative;
 			}
 
@@ -310,13 +310,11 @@
 					</ul>
 					<div class="card-footer">
 						<form action="#" method="post">
-							<button class="arrow-link arrow-icon" type="submit" name="increase" value=1 title="Increase level of detail">
+							<button class="arrow-link arrow-icon" type="submit" name="increase" value=1 title="Increase level of detail"></button>
 						</form>
 						<span class="detail">Level of detail</span>
 						<form action="#" method="post">
-							<a class="arrow-link" href="#" name="decrease" title="Decrease level of detail">
-								<i class="arrow-icon" style="rotate: 180deg; top: 3px"></i>
-							</a>
+							<button class="arrow-link arrow-icon" type="submit" name="decrease" title="Decrease level of detail" style="rotate: 180deg;"></button>
 						</form>
 					</div>
 				</div>
