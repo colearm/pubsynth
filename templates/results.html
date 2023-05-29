@@ -123,7 +123,7 @@
 				transition: 0.3s;
 				margin-left: 50px;
 				margin-right: 50px;
-				margin-bottom: 4%;
+				margin-bottom: 3.5%;
 			}
 
 			.card-header {
@@ -238,11 +238,8 @@
 			}
 
 			#references-card {
-				width: 50%;
 				filter: drop-shadow(2px 3px 5px rgba(0, 0, 0, 0.15));
 				transition: 0.3s;
-				margin-left: 50px;
-				margin-right: 50px;
 			}
 
 			#references-header {
@@ -270,6 +267,20 @@
 
 			#references-item {
 				font-size: 16px;
+				padding-left: 30px;
+				padding-right: 30px;
+			}
+
+			#references-item:hover {
+				font-weight: bold;
+			}
+
+			#references-item::before {
+				content: attr(data-label);
+				font-weight: bold;
+				visibility: hidden;
+				display: block;
+				height: 0px;
 			}
 		</style>
 	</head>
@@ -384,8 +395,10 @@
 					</div>
 					<ul class="list-group list-group-flush">
 						{% for pmid in pmids %}
-							<li class="list-group-item" id="references-item">
-								<a href="https://pubmed.ncbi.nlm.nih.gov/{{pmid}}/">https://pubmed.ncbi.nlm.nih.gov/{{pmid}}/</a>
+							<li class="list-group-item" id="references-item" data-label="{{ loop.index }}. &nbsp; {{ titles.get(pmid, '') }}">
+								<a href="https://pubmed.ncbi.nlm.nih.gov/{{ pmid }}/" title="View full article" target="_blank" rel="noopener noreferrer">
+									<span class="pr-5">{{ loop.index }}. &nbsp; {{ titles.get(pmid, "") }}</span>
+								</a>
 							</li>
 						{% endfor %}
 					</ul>
