@@ -123,14 +123,15 @@
 				transition: 0.3s;
 				margin-left: 50px;
 				margin-right: 50px;
+				margin-bottom: 4%;
 			}
 
 			.card-header {
 				font-size: 21px;
 				text-align: center;
 				font-weight: 600;
-				padding-top: 20px;
-				padding-bottom: 20px;
+				padding-top: 15px;
+				padding-bottom: 15px;
 			}
 
 			.fa-search {
@@ -139,11 +140,12 @@
 				font-size: 24px;
 				width: 2rem;
 				height: 2rem;
-				line-height: 1.95rem;
+				line-height: 2rem;
+				padding-right: 2.5rem;
 			}
 
 			.search-text {
-				padding-left: 3rem;
+				padding-left: 2.5rem;
 			}
 
 			#result-item {
@@ -234,6 +236,41 @@
 				height: 0px;
 				padding-left: 1rem;
 			}
+
+			#references-card {
+				width: 50%;
+				filter: drop-shadow(2px 3px 5px rgba(0, 0, 0, 0.15));
+				transition: 0.3s;
+				margin-left: 50px;
+				margin-right: 50px;
+			}
+
+			#references-header {
+				display: flex;
+				padding-top: 8px;
+				padding-bottom: 8px;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.link-icon {
+				background: url(/static/link-icon.png);
+				height: 24px;
+				width: 24px;
+				display: inline-block;
+				scale: 0.8;
+				filter: invert(50%) sepia(0%) saturate(0%) hue-rotate(137deg) brightness(95%) contrast(86%);
+				padding-right: 0.75rem;
+			}
+
+			.references {
+				font-size: 18px;
+				padding-left: 0.75rem;
+			}
+
+			#references-item {
+				font-size: 16px;
+			}
 		</style>
 	</head>
 	<body style="background-image: url(/static/bg.png)">
@@ -298,8 +335,8 @@
 						</li>
 					</ul>
 				</div>
-				<div class="card rounded-3 mb-5" id="result-card">
-					<div class="card-header">
+				<div class="card rounded-3" id="result-card">
+					<div class="card-header ">
 						<i class="fa fa-search fa-lg"></i>
 						<span class="search-text">{{ query }}</span>
 					</div>
@@ -338,6 +375,19 @@
 								<span class="more-text">Share summary</span>
 							</a>
 						</li>
+					</ul>
+				</div>
+				<div class="card rounded-3" id="references-card">
+					<div class="card-header" id="references-header">
+						<i class="link-icon"></i>
+						<span class="references">References</span>
+					</div>
+					<ul class="list-group list-group-flush">
+						{% for pmid in pmids %}
+							<li class="list-group-item" id="references-item">
+								<a href="https://pubmed.ncbi.nlm.nih.gov/{{pmid}}/">https://pubmed.ncbi.nlm.nih.gov/{{pmid}}/</a>
+							</li>
+						{% endfor %}
 					</ul>
 				</div>
 			</div>

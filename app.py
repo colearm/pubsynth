@@ -40,14 +40,16 @@ def favorites():
 @app.route("/results", methods=["POST", "GET"])
 def results():
     query = session["query"]  # query is the same regardless of level of detail
+    pmids = session["pmids"] # pmids are the same regardless of level of detail
+    pmid_list = pmids.split(",")
     if request.method == "POST":
         # detail = 1 ~ increase, detail = -1 ~ decrease
         detail = 1 if "increase" in request.form else -1
         summary = get_summary(session["abstracts"], detail)
         session["result"] = summary  # update session variable
-        return render_template("results.html", query=query, result=summary)
+        return render_template("results.html", query=query, result=summary, pmids=pmid_list)
     result = session["result"]
-    return render_template("results.html", query=query, result=result)
+    return render_template("results.html", query=query, result=result, pmids=pmid_list)
 
 
 def parse_abstracts(medline):
@@ -84,21 +86,19 @@ def get_abstracts(pmids):
 
 def get_summary(abstracts, detail=0):
     if detail == 0:
-        prompt = """Synthesize the key pieces of information from the following research paper abstracts into one coherent summary that is comprehensible to the average person. 
-        Each abstract you are being given starts with #####. Use this to help you isolate the topics of each abstract to create a more intelligible summary. 
-        Your summary should be around 10 sentences long: """
+        prompt = """Your job is to synthesize the key pieces of information from the following research paper abstracts into one coherent summary that is comprehensible to the 
+        average person. Each abstract you are being given starts with #####. Use this to help you isolate the topics of each abstract to create a more intelligible summary. Your 
+        summary should be around 10 sentences long: """
     elif detail == 1:
         summary = session["result"]
-        prompt = f"""Synthesize the key pieces of information from the following research paper abstracts into one coherent summary that is comprehensible to the average person. The 
-        summary you gave last time was: {summary}. Use details from the following abstracts to create a new summary with an increased level of detail and technicality. Your #1  
-        priority is to make your response is at least 20% longer than your last summary in terms of characters used. Each abstract begins with #####: """
+        prompt = f"""Your job is to synthesize the key pieces of information from the following research paper abstracts into one coherent summary that is comprehensible to the 
+        average person. The summary you gave last time was: "{summary}" Use details from the following abstracts to create a new summary with an increased level of detail and 
+        technicality. Your #1 priority is to make your response at least 20% longer than your last summary in terms of characters used. Each abstract begins with #####: """
     else:
         summary = session["result"]
-        prompt = f"""Synthesize the key pieces of information from the following research paper abstracts into one coherent summary that is comprehensible to the average person. The 
-        summary you gave last time was: {summary}. Use the following abstracts to create a new, more generalized summary with a decreased level of detail and shorter response length 
-        compared to last time. Each abstract begins with #####: """
-    
-    print(prompt)
+        prompt = f"""Your job is to synthesize the key pieces of information from the following research paper abstracts into one coherent summary that is comprehensible to the 
+        average person. The summary you gave last time was: "{summary}" Use the following abstracts to create a new, more generalized summary with a decreased level of detail and 
+        shorter response length compared to last time. Each abstract begins with #####: """
 
     gpt_response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
