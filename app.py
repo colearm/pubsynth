@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, Response
 from flask_session import Session
 import requests
 import os
 import openai
+import pdfkit
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
@@ -19,7 +20,7 @@ def search():
         session["query"] = query
         pmids = get_pmids(query)  # get pmids from search query
         session["pmids"] = pmids
-        titles = get_titles(pmids)
+        titles = get_titles(pmids) # get titles from pmids
         session["titles"] = titles
         abstracts = get_abstracts(pmids)  # get abstracts from pmids
         session["abstracts"] = abstracts
@@ -44,7 +45,6 @@ def results():
     query = session["query"]  # query is the same regardless of level of detail
     pmids = session["pmids"] # pmids are the same regardless of level of detail
     titles = session["titles"] # titles are the same regardless of level of detail
-    print(pmids)
     pmid_list = pmids.split(",")
     if request.method == "POST":
         detail = 1 if "increase" in request.form else -1
@@ -53,6 +53,16 @@ def results():
         return render_template("results.html", query=query, result=summary, pmids=pmid_list, titles=titles)
     result = session["result"]
     return render_template("results.html", query=query, result=result, pmids=pmid_list, titles=titles)
+
+
+@app.route("/download")
+def download_pdf():
+    pdf = generate_pdf()
+    response = Response(pdf)
+    query = session["query"]
+    response.headers["Content-Disposition"] = f"attachment; filename={query}.pdf"
+    response.mimetype = "application/pdf"
+    return response
 
 
 def parse_abstracts(medline):
@@ -120,6 +130,20 @@ def get_summary(abstracts, detail=0):
         ]
     )
     return gpt_response["choices"][0]["message"]["content"]
+
+
+def generate_pdf():
+    render = render_template("download.html", pmids=session["pmids"].split(","), query=session["query"], result=session["result"])
+    options = {
+        'page-size': 'Letter',
+        'margin-top': '0.75in',
+        'margin-right': '0.75in',
+        'margin-bottom': '0.75in',
+        'margin-left': '0.75in',
+        'encoding': "UTF-8",
+    }
+    pdf = pdfkit.from_string(render, False, options=options)
+    return pdf
 
 
 if __name__ == "__main__":
