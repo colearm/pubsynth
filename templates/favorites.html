@@ -29,10 +29,6 @@
 				font-weight: bold;
 			}
 
-			.nav-link:active {
-				color: black;
-			}
-
 			.nav-item::before {
 				content: attr(data-label);
 				display: block;
@@ -156,35 +152,33 @@
 		<div class="continer">
 			<div class="navs">
 				<nav class="navbar fixed-top">
-					<div class="container-fluid">
-						<button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-							<span class="navbar-toggler-icon"></span>
-						</button>
-						<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-							<div class="offcanvas-header">
-								<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-							</div>
-							<div class="offcanvas-body">
-								<ul class="navbar-nav">
-									<li class="menu-item">
-										<hr />
-										<a class="nav-link" href="/"><i class="home-icon"></i><span id="icon-text">Home</span></a>
-										<hr />
-									</li>
-									<li class="menu-item">
-										<a class="nav-link" href="#"><i class="profile-icon"></i><span id="icon-text">Profile</span></a>
-										<hr />
-									</li>
-									<li class="menu-item">
-										<a class="nav-link" href="#"><i class="settings-icon"></i><span id="icon-text">Settings</span></a>
-										<hr />
-									</li>
-									<li class="menu-item">
-										<a class="nav-link" href="#"><i class="about-icon"></i><span id="icon-text">About</span></a>
-										<hr />
-									</li>
-								</ul>
-							</div>
+					<button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+					<div class="offcanvas offcanvas-end" id="offcanvasNavbar">
+						<div class="offcanvas-header">
+							<button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+						</div>
+						<div class="offcanvas-body">
+							<ul class="navbar-nav">
+								<li class="menu-item">
+									<hr />
+									<a class="nav-link" href="/"><i class="home-icon"></i><span id="icon-text">Home</span></a>
+									<hr />
+								</li>
+								<li class="menu-item">
+									<a class="nav-link" href="#"><i class="profile-icon"></i><span id="icon-text">Profile</span></a>
+									<hr />
+								</li>
+								<li class="menu-item">
+									<a class="nav-link" href="#"><i class="settings-icon"></i><span id="icon-text">Settings</span></a>
+									<hr />
+								</li>
+								<li class="menu-item">
+									<a class="nav-link" href="#"><i class="about-icon"></i><span id="icon-text">About</span></a>
+									<hr />
+								</li>
+							</ul>
 						</div>
 					</div>
 				</nav>

@@ -40,10 +40,6 @@
 				font-weight: bold;
 			}
 
-			.nav-link:active {
-				color: black;
-			}
-
 			.navbar-toggler {
 				background-color: rgb(250, 250, 250);
 				border: transparent;
@@ -150,6 +146,7 @@
 
 			#result-item {
 				font-size: 18px;
+				padding-top: 15px;
 			}
 
 			.card-footer {
@@ -205,6 +202,10 @@
 				font-weight: bold;
 			}
 
+			.keep-bold {
+				font-weight: bold;
+			}
+
 			#more-item::before {
 				content: attr(data-label);
 				font-weight: bold;
@@ -234,13 +235,6 @@
 			.share-icon {
 				background: url(/static/share-icon.png);
 			}
-
-			hr {
-				margin-top: 1rem;
-				margin-bottom: 1rem;
-				border: 0;
-				border-top: 1px solid rgba(0, 0, 0, 0.1);
-				}
 
 			.copy-icon {
 				background: url(/static/copy-icon.png);
@@ -309,15 +303,18 @@
 				height: 0px;
 			}
 
-			.alert {
+			#alert {
 				text-align: center;
-				width: 50%;
+				width: 20%;
 				position: fixed;
 				bottom: 0px;
-				left: 25%;
+				left: 40%;
 				z-index: 9999;
-				background-color: #f0f0f0;
+				filter: drop-shadow(2px 3px 5px rgba(0, 0, 0, 0.3));
 				visibility: hidden;
+				margin-bottom: 30px;
+				padding-top: 10px;
+				padding-bottom: 10px;
 			}
 
 			#loader {
@@ -338,35 +335,33 @@
 		<div class="continer" id="content">
 			<div class="navs">
 				<nav class="navbar fixed-top">
-					<div class="container-fluid">
-						<button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-							<span class="navbar-toggler-icon"></span>
-						</button>
-						<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-							<div class="offcanvas-header">
-								<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-							</div>
-							<div class="offcanvas-body">
-								<ul class="navbar-nav">
-									<li class="menu-item">
-										<hr />
-										<a class="nav-link" href="/"><i class="home-icon"></i><span id="icon-text">Home</span></a>
-										<hr />
-									</li>
-									<li class="menu-item">
-										<a class="nav-link" href="#"><i class="profile-icon"></i><span id="icon-text">Profile</span></a>
-										<hr />
-									</li>
-									<li class="menu-item">
-										<a class="nav-link" href="#"><i class="settings-icon"></i><span id="icon-text">Settings</span></a>
-										<hr />
-									</li>
-									<li class="menu-item">
-										<a class="nav-link" href="#"><i class="about-icon"></i><span id="icon-text">About</span></a>
-										<hr />
-									</li>
-								</ul>
-							</div>
+					<button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+					<div class="offcanvas offcanvas-end" id="offcanvasNavbar">
+						<div class="offcanvas-header">
+							<button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+						</div>
+						<div class="offcanvas-body">
+							<ul class="navbar-nav">
+								<li class="menu-item">
+									<hr />
+									<a class="nav-link" href="/"><i class="home-icon"></i><span id="icon-text">Home</span></a>
+									<hr />
+								</li>
+								<li class="menu-item">
+									<a class="nav-link" href="#"><i class="profile-icon"></i><span id="icon-text">Profile</span></a>
+									<hr />
+								</li>
+								<li class="menu-item">
+									<a class="nav-link" href="#"><i class="settings-icon"></i><span id="icon-text">Settings</span></a>
+									<hr />
+								</li>
+								<li class="menu-item">
+									<a class="nav-link" href="#"><i class="about-icon"></i><span id="icon-text">About</span></a>
+									<hr />
+								</li>
+							</ul>
 						</div>
 					</div>
 				</nav>
@@ -430,12 +425,12 @@
 							</a>
 						</li>
 						<li class="list-group-item" id="more-item" data-label="Share summary">
-							<a href="#share-options" data-bs-toggle="collapse" role="button">
+							<a href="#share-options" data-bs-toggle="collapse" role="button" onclick="return keepBold();">
 								<i class="more-icon share-icon"></i>
-								<span class="more-text">Share summary</span>
+								<span class="more-text" id="share-summary">Share summary</span>
 							</a>
 							<div class="collapse" id="share-options">
-								<ul class="list-group list-group-flush mt-2">
+								<ul class="list-group list-group-flush mt-1">
 									<li class="list-group-item" id="more-item" data-label="Copy Link">
 										<button id="copy-link" onclick="copyLink();">
 											<i class="more-icon copy-icon"></i>
@@ -477,7 +472,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="alert alert-secondary alert-dismissible fade show" role="alert">Copied to clipboard!</div>
+		<div class="card rounded-3" id="alert">Copied to clipboard!</div>
 		<div class="container" id="loader"></div>
 		<script>
 			function loading(){
@@ -486,8 +481,23 @@
 			}
 		</script>
 		<script>
+			function keepBold(){
+				document.getElementById("share-summary").classList.toggle("keep-bold");
+				return True;
+			}
+		</script>
+		<script>
 			function copyLink(){
+				let alert = document.getElementById("alert");
 				navigator.clipboard.writeText("https://www.google.com"); // replace with result url
+				alert.style.visibility = "visible";
+				setTimeout(function () {
+					alert.style.transition = "2s";
+					alert.style.opacity = "0";
+					alert.style.visibility = "hidden";
+				}, 1500);
+				alert.style.transition = "0s";
+				alert.style.opacity = "100";
 			}
 		</script>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
