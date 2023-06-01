@@ -196,8 +196,22 @@
 				margin-bottom: 50px;
 			}
 
-			#more-item {
+			.more-text {
+				padding-left: 1rem;
 				font-size: 16px;
+			}
+
+			.more-text:hover {
+				font-weight: bold;
+			}
+
+			#more-item::before {
+				content: attr(data-label);
+				font-weight: bold;
+				visibility: hidden;
+				display: block;
+				height: 0px;
+				padding-left: 1rem;
 			}
 
 			.more-icon {
@@ -221,21 +235,29 @@
 				background: url(/static/share-icon.png);
 			}
 
-			.more-text {
-				padding-left: 1rem;
+			hr {
+				margin-top: 1rem;
+				margin-bottom: 1rem;
+				border: 0;
+				border-top: 1px solid rgba(0, 0, 0, 0.1);
+				}
+
+			.copy-icon {
+				background: url(/static/copy-icon.png);
 			}
 
-			#more-item:hover {
-				font-weight: bold;
+			#copy-link {
+				background: none;
+				border: none;
+				padding: 0;
 			}
 
-			#more-item::before {
-				content: attr(data-label);
-				font-weight: bold;
-				visibility: hidden;
-				display: block;
-				height: 0px;
-				padding-left: 1rem;
+			.email-icon {
+				background: url(/static/email-icon.png);
+			}
+
+			.twitter-icon {
+				background: url(/static/twitter-icon.png);
 			}
 
 			#references-card {
@@ -243,7 +265,7 @@
 				transition: 0.3s;
 				margin-left: 50px;
 				margin-right: 50px;
-				margin-bottom: 3.5%;
+				margin-bottom: 50px;
 			}
 
 			#references-header {
@@ -285,6 +307,17 @@
 				visibility: hidden;
 				display: block;
 				height: 0px;
+			}
+
+			.alert {
+				text-align: center;
+				width: 50%;
+				position: fixed;
+				bottom: 0px;
+				left: 25%;
+				z-index: 9999;
+				background-color: #f0f0f0;
+				visibility: hidden;
 			}
 
 			#loader {
@@ -402,7 +435,27 @@
 								<span class="more-text">Share summary</span>
 							</a>
 							<div class="collapse" id="share-options">
-								Placeholder
+								<ul class="list-group list-group-flush mt-2">
+									<li class="list-group-item" id="more-item" data-label="Copy Link">
+										<button id="copy-link" onclick="copyLink();">
+											<i class="more-icon copy-icon"></i>
+											<span class="more-text">Copy Link</span>
+										</button>
+									</li>
+									<li class="list-group-item" id="more-item" data-label="Email">
+										<a href="mailto:?subject=Re%3A%20{{ query }}&body={{ result }}">
+											<i class="more-icon email-icon"></i>
+											<span class="more-text">Email</span>
+										</a>
+									</li>
+									<li class="list-group-item" id="more-item" data-label="Twitter">
+										<a href="https://twitter.com/intent/tweet?url=&text=%F0%9F%94%8E%20{{ query }}%0A%0ACheck%20out%20PubSynth's%20response%20below%20%F0%9F%91%87%0Ahttps%3A%2F%2Fwww.google.com%0A%0A&hashtags=pubsynth" target="_blank" rel="noopener noreferrer">
+											<!-- replace google link with result url -->
+											<i class="more-icon twitter-icon"></i>
+											<span class="more-text">Twitter</span>
+										</a>
+									</li>
+								</ul>
 							</div>
 						</li>
 					</ul>
@@ -424,11 +477,17 @@
 				</div>
 			</div>
 		</div>
+		<div class="alert alert-secondary alert-dismissible fade show" role="alert">Copied to clipboard!</div>
 		<div class="container" id="loader"></div>
 		<script>
 			function loading(){
 				document.getElementById("content").style.display = "none";
 				document.getElementById("loader").style.visibility = "visible";
+			}
+		</script>
+		<script>
+			function copyLink(){
+				navigator.clipboard.writeText("https://www.google.com"); // replace with result url
 			}
 		</script>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
