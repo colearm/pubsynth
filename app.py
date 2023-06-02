@@ -1,14 +1,14 @@
 from flask import Flask, render_template, request, redirect, session, Response
-from flask_session import Session
+from flask_sqlalchemy import SQLAlchemy
 import requests
 import os
 import openai
 import pdfkit
 
 app = Flask(__name__)
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('PS_DB_URI')
+app.config['SECRET_KEY'] = os.getenv('PS_SECRET_KEY')
+db = SQLAlchemy(app)
 
 openai.apikey = os.getenv("OPENAI_API_KEY")
 
@@ -29,6 +29,13 @@ def search():
         return redirect("/results")
     return render_template("search.html")
 
+@app.route("/login")
+def login():
+    return render_template("login.html")
+
+@app.route("/register")
+def register():
+    return render_template("register.html")
 
 @app.route("/recents")
 def recents():
