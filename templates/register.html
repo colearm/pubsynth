@@ -9,6 +9,21 @@
     </head>
     <body style="background-image: url(/static/bg.png)">
         <h1>Register</h1>
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            {{ form.username }}
+            {{ form.password }}
+            {{ form.submit }}
+        </form>
+        {% if form.username.errors %}
+            <div>
+                {% for error in form.username.errors %}
+                    <span style="color: red">{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            <br>
+        {% endif %}
         <a href="{{url_for('login')}}">Already have an account? Log in!</a>
     </body>
 </html>
