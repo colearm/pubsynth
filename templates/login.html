@@ -14,8 +14,16 @@
             {{ form.username }}
             {{ form.password }}
             {{ form.submit }}
+            {{ form.remember_me }}
         </form>
+        {% if invalid_login %}
+            <div>
+                <span style="color: red">{{ invalid_login }}</span>
+            </div>
+        {% else %}
+            <br>
+        {% endif %}
         <br>
-        <a href="{{url_for('register')}}">Don't have an account? Sign up!</a>
+        <span>New to PubSynth? </span><a href="/register">SIGN UP</a>
     </body>
 </html>

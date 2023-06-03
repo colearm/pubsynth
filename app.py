@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request, redirect, session, Response
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import InputRequired, Length, ValidationError
+from wtforms import EmailField, StringField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import InputRequired, Length, ValidationError, Email
 from flask_bcrypt import Bcrypt
+from datetime import timedelta
 import requests
 import os
 import openai
@@ -31,24 +32,33 @@ def load_user(user_id):
 
 class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), nullable=False, unique=True)
     username = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
 
 
 class RegisterForm(FlaskForm):
+    email = EmailField(validators=[InputRequired(), Length(max=100), Email(message="Enter a valid email address.", check_deliverability=True)], render_kw={"placeholder": "Email address"})
     username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
     password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"}) # different than pass length in db b/c pass will be hashed
     submit = SubmitField("Register")
+
     def validate_username(self, username): # check for duplicate username in db
         existing_user = Users.query.filter_by(username=username.data).first()
         if existing_user:
             raise ValidationError("That username is already taken.")
+    
+    def validate_email(self, email): # check for duplicate email in db
+        existing_email = Users.query.filter_by(email=email.data).first()
+        if existing_email:
+            raise ValidationError("That email address is already in use.")
 
 
 class LoginForm(FlaskForm):
     username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
     password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"}) # different than pass length in db b/c pass will be hashed
-    submit = SubmitField("Login")
+    remember_me = BooleanField()
+    submit = SubmitField("Log in")
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -56,7 +66,7 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         hashed_pass = bcrypt.generate_password_hash(form.password.data)
-        new_user = Users(username=form.username.data, password=hashed_pass)
+        new_user = Users(email=form.email.data, username=form.username.data, password=hashed_pass)
         db.session.add(new_user)
         db.session.commit()
         return redirect("/login")
@@ -69,8 +79,13 @@ def login():
     if form.validate_on_submit():
         user = Users.query.filter_by(username=form.username.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user)
+            if form.remember_me.data:
+                login_user(user, remember=True, duration=timedelta(days=14))
+            else:
+                login_user(user)
             return redirect("/")
+        else:
+            return render_template("login.html", form=form, invalid_login="Username or password is incorrect.")
     return render_template("login.html", form=form)
 
 

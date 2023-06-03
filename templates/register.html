@@ -11,11 +11,18 @@
         <h1>Register</h1>
         <form action="" method="post">
             {{ form.hidden_tag() }}
+            {{ form.email }}
             {{ form.username }}
             {{ form.password }}
             {{ form.submit }}
         </form>
-        {% if form.username.errors %}
+        {% if form.email.errors %}
+            <div>
+                {% for error in form.email.errors %}
+                    <span style="color: red">{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% elif form.username.errors %}
             <div>
                 {% for error in form.username.errors %}
                     <span style="color: red">{{ error }}</span>
@@ -24,6 +31,7 @@
         {% else %}
             <br>
         {% endif %}
-        <a href="{{url_for('login')}}">Already have an account? Log in!</a>
+        <br>
+        <span>Already have an account? </span><a href="/login">LOG IN</a>
     </body>
 </html>
