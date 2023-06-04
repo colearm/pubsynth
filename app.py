@@ -1,11 +1,11 @@
-from flask import Flask, render_template, request, redirect, session, Response, url_for
+from flask import Flask, render_template, request, redirect, session, Response, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail, Message
 from wtforms import EmailField, StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import InputRequired, Length, ValidationError, Email
+from wtforms.validators import InputRequired, Length, ValidationError, Email, EqualTo
 from datetime import timedelta
 from time import time
 import jwt
@@ -71,7 +71,7 @@ class RegisterForm(FlaskForm):
     def validate_username(self, username): # check for duplicate username in db
         existing_user = Users.query.filter_by(username=username.data).first()
         if existing_user:
-            raise ValidationError("That username is already taken.")
+            raise ValidationError("That username is already in use.")
     
     def validate_email(self, email): # check for duplicate email in db
         existing_email = Users.query.filter_by(email=email.data).first()
@@ -93,7 +93,7 @@ class ForgotForm(FlaskForm):
 
 class ResetPasswordForm(FlaskForm):
     password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "New Password"})
-    confirm_password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Confirm New Password"})
+    confirm_password = PasswordField(validators=[InputRequired(), Length(min=4, max=20), EqualTo("password", message="The passwords you entered do not match.")], render_kw={"placeholder": "Confirm New Password"})
     submit = SubmitField("Reset Password")
 
 
@@ -108,6 +108,10 @@ def register():
         db.session.add(new_user)
         db.session.commit()
         return redirect("/login")
+    if form.email.errors:
+        flash(form.email.errors[0], "danger")
+    elif form.username.errors:
+        flash(form.username.errors[0], "danger") 
     return render_template("register.html", form=form)
 
 
@@ -124,7 +128,8 @@ def login():
             else:
                 login_user(user)
             return redirect("/")
-        return render_template("login.html", form=form, invalid="Username or password is incorrect.")
+        flash("Username or password is incorrect.", "danger")
+        return render_template("login.html", form=form)
     return render_template("login.html", form=form)
 
 
@@ -144,7 +149,10 @@ def forgot_password():
         user = Users.query.filter_by(email=form.email.data).first()
         if user:
             send_reset_email(user)
-        return render_template("forgot.html", form=form, sent="If the email address you entered is associated with an account, you'll receive a link to reset your password shortly.")
+        flash("If the email address you entered is associated with an account, you'll receive a link to reset your password shortly.", "success")
+        return render_template("forgot.html", form=form)
+    if form.email.errors:
+        flash(form.email.errors[0], "danger")
     return render_template("forgot.html", form=form)
 
 
@@ -157,12 +165,12 @@ def reset_password(token):
         return redirect("/forgot-password")
     form = ResetPasswordForm()
     if form.validate_on_submit():
-        if form.password.data == form.confirm_password.data:
-            hashed_pass = bcrypt.generate_password_hash(form.password.data)
-            user.password = hashed_pass
-            db.session.commit()
-            return redirect("/login")
-        return render_template("reset.html", form=form, invalid="The passwords you entered do not match.")
+        hashed_pass = bcrypt.generate_password_hash(form.password.data)
+        user.password = hashed_pass
+        db.session.commit()
+        return redirect("/login")
+    if form.confirm_password.errors:
+        flash(form.confirm_password.errors[0], "danger")
     return render_template("reset.html", form=form)
 
 
@@ -185,16 +193,19 @@ def search():
 
 
 @app.route("/recents")
+@login_required
 def recents():
     return render_template("recents.html")
 
 
 @app.route("/favorites")
+@login_required
 def favorites():
     return render_template("favorites.html")
 
 
 @app.route("/results", methods=["GET", "POST"])
+@login_required
 def results():
     search_query = session["search_query"]  # query is the same regardless of level of detail
     pmids = session["pmids"] # pmids are the same regardless of level of detail
