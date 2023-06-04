@@ -95,3 +95,20 @@ hr {
     flex-direction: column;
     align-items: center;
 }
+
+a {
+    text-decoration: none;
+    color: #212529;
+}
+
+h1 {
+    font-weight: 700;
+    text-align: center;
+    font-size: 72px;
+}
+
+.alerts {
+    width: 50%;
+    position: fixed;
+    left: 25%;
+}

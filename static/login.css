@@ -1,0 +1,61 @@
+.nav-link:link {
+    color: black;
+}
+
+.navs {
+    margin-top: 10%;
+}
+
+h1 {
+    font-size: 82px;
+}
+
+h2 {
+    font-weight: 370;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-control {
+    width: 320px;
+    height: 45px;
+    transition: 0.3s;
+    border-width: 1px;
+}
+
+.form-control:hover {
+    filter: drop-shadow(2px 3px 5px rgba(0, 0, 0, 0.1));
+}
+
+.form-control:focus {
+    border-color: #686868;
+    box-shadow: 0 0 0 0.2rem rgba(104, 104, 104, 0.25);
+}
+
+.btn-secondary {
+    background-color: #272727;
+    border-color: #272727;
+    width: 320px;
+    height: 45px;
+}
+
+.btn-secondary:hover {
+    background-color: #686868;
+    border-color: #686868;
+}
+
+a {
+    color: #272727;
+    text-decoration: underline;
+}
+
+.redirect {
+    font-weight: bold;
+}
+
+.redirect span {
+    margin-right: 12px;
+}
