@@ -33,6 +33,8 @@ openai.apikey = os.getenv("OPENAI_API_KEY")
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
+login_manager.login_message = "Please log in to view this page."
+login_manager.login_message_category = "danger"
 
 
 @login_manager.user_loader # loads users object from the user id stored in the session
