@@ -1,3 +1,11 @@
+.alerts {
+    width: 50%;
+    position: fixed;
+    left: 25%;
+    z-index: 9999;
+    text-align: center;
+}
+
 .nav-link:link {
     color: black;
 }

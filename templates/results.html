@@ -215,20 +215,6 @@
 				height: 0px;
 			}
 
-			#alert {
-				text-align: center;
-				width: 20%;
-				position: fixed;
-				bottom: 0px;
-				left: 40%;
-				z-index: 9999;
-				filter: drop-shadow(2px 3px 5px rgba(0, 0, 0, 0.3));
-				visibility: hidden;
-				margin-bottom: 30px;
-				padding-top: 10px;
-				padding-bottom: 10px;
-			}
-
 			#loader {
 				height: 200px;
 				width: 200px;
@@ -240,6 +226,16 @@
 				margin-left: -100px;
 				margin-top: -150px;
 				scale: 0.9;
+			}
+
+			.alert {
+				width: 50%;
+				position: fixed;
+				left: 25%;
+				bottom: 1rem;
+				z-index: 9999;
+				visibility: hidden;
+				text-align: center;
 			}
 		</style>
 	</head>
@@ -354,7 +350,9 @@
 				</div>
 			</div>
 		</div>
-		<div class="card rounded-3" id="alert">Copied to clipboard!</div>
+		<div class="alert alert-secondary" id="alert" role="alert">
+            <span>Copied to clipboard!</span>
+		</div>
 		<div class="container" id="loader"></div>
 		<script>
 			function loading(){

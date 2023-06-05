@@ -106,9 +106,3 @@ h1 {
     text-align: center;
     font-size: 72px;
 }
-
-.alerts {
-    width: 50%;
-    position: fixed;
-    left: 25%;
-}
