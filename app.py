@@ -88,7 +88,7 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Log in")
 
 
-class ForgotForm(FlaskForm):
+class ResetRequestForm(FlaskForm):
     email = EmailField(validators=[InputRequired(), Length(max=100), Email(message="Enter a valid email address.", check_deliverability=True)], render_kw={"placeholder": "Email address"})
     submit = SubmitField("Reset Password")
 
@@ -142,20 +142,20 @@ def logout():
     return redirect("/login")
 
 
-@app.route("/forgot-password", methods=["GET", "POST"])
-def forgot_password():
+@app.route("/reset-password", methods=["GET", "POST"])
+def reset_request():
     if current_user.is_authenticated:
         return redirect("/")
-    form = ForgotForm()
+    form = ResetRequestForm()
     if form.validate_on_submit():
         user = Users.query.filter_by(email=form.email.data).first()
         if user:
             send_reset_email(user)
-        flash("If the email address you entered is associated with an account, you'll receive a link to reset your password shortly.", "success")
-        return render_template("forgot.html", form=form)
+        flash("If the email address you entered is connected to an account, you'll receive a link to reset your password shortly.", "success")
+        return render_template("request.html", form=form, success=True)
     if form.email.errors:
         flash(form.email.errors[0], "danger")
-    return render_template("forgot.html", form=form)
+    return render_template("request.html", form=form)
 
 
 @app.route("/reset-password/<token>", methods=["GET", "POST"])
@@ -164,7 +164,7 @@ def reset_password(token):
         return redirect("/")
     user = Users.verify_token(token)
     if not user:
-        return redirect("/forgot-password")
+        return redirect("/reset-password")
     form = ResetPasswordForm()
     if form.validate_on_submit():
         hashed_pass = bcrypt.generate_password_hash(form.password.data)
@@ -177,7 +177,6 @@ def reset_password(token):
 
 
 @app.route("/", methods=["GET", "POST"])
-@login_required
 def search():
     if request.method == "POST":
         search_query = request.form["query"]  # get search query from search bar
@@ -207,7 +206,6 @@ def favorites():
 
 
 @app.route("/results", methods=["GET", "POST"])
-@login_required
 def results():
     search_query = session["search_query"]  # query is the same regardless of level of detail
     pmids = session["pmids"] # pmids are the same regardless of level of detail
@@ -235,11 +233,11 @@ def download_pdf():
 def send_reset_email(user):
     token = user.generate_token()
     msg = Message("PubSynth - Password Reset Request", sender=os.getenv('EMAIL_USER'), recipients=[user.email])
-    msg.body = f"""We have received a password reset request for your account.
+    msg.body = f"""We have received a request to reset the password for your account.
 
 Visit the following link to reset your password: {url_for("reset_password", token=token, _external=True)}
 
-If you did not initiate a reset request, you may safely ignore this email.
+If you did not initiate this request, you may safely ignore this email.
 
 Thank you,
 The PubSynth Team

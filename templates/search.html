@@ -9,18 +9,20 @@
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 		<link rel="stylesheet" href="/static/main.css" />
 		<style>
+			.container
+
 			.nav-link:link {
 				color: black;
 			}			
 			
 			.navs {
-				margin-bottom: 8%;
+				margin-bottom: 15vh;
 			}
 
 			h2 {
 				font-weight: 330;
 				text-align: center;
-				font-size: 30px;
+				font-size: 35px;
 			}
 
 			.card {
@@ -69,12 +71,17 @@
 				margin-top: -150px;
 				scale: 0.9;
 			}
+
+			.container {
+				position: relative;
+				width: 100%;
+			}
 		</style>
 	</head>
 	<body>
 		<div class="container" id="content">
 			<div class="navs">
-				{% include 'offcanvas.html' %}
+				{% include 'offcanvas-login.html' %}
 				<br />
 				<ul class="nav nav-underline justify-content-center">
 					<li class="nav-item" data-label="Search">
