@@ -31,12 +31,12 @@ h3 {
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 18px;
 }
 
 .form-control {
-    width: 320px;
-    height: 45px;
+    width: 350px;
+    height: 50px;
     transition: 0.3s;
     border-width: 1px;
 }
@@ -53,8 +53,8 @@ h3 {
 .btn-secondary {
     background-color: #272727;
     border-color: #272727;
-    width: 320px;
-    height: 45px;
+    width: 350px;
+    height: 50px;
 }
 
 .btn-secondary:hover {

@@ -94,8 +94,8 @@ class ResetRequestForm(FlaskForm):
 
 
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "New Password"})
-    confirm_password = PasswordField(validators=[InputRequired(), Length(min=4, max=20), EqualTo("password", message="The passwords you entered do not match.")], render_kw={"placeholder": "Confirm New Password"})
+    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "New password"})
+    confirm_password = PasswordField(validators=[InputRequired(), Length(min=4, max=20), EqualTo("password", message="The passwords you entered do not match.")], render_kw={"placeholder": "Confirm new password"})
     submit = SubmitField("Reset Password")
 
 
@@ -218,6 +218,11 @@ def results():
         return render_template("results.html", query=search_query, result=summary, pmids=pmid_list, titles=titles)
     result = session["result"]
     return render_template("results.html", query=search_query, result=result, pmids=pmid_list, titles=titles)
+
+
+@app.route("/profile", methods=["GET", "POST"])
+def profile():
+    pass
 
 
 @app.route("/download")
