@@ -70,15 +70,15 @@ class RegisterForm(FlaskForm):
     password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"}) # different than pass length in db b/c pass will be hashed
     submit = SubmitField("Register")
 
-    def validate_username(self, username): # check for duplicate username in db
-        existing_user = Users.query.filter_by(username=username.data).first()
-        if existing_user:
-            raise ValidationError("That username is already in use.")
-    
     def validate_email(self, email): # check for duplicate email in db
         existing_email = Users.query.filter_by(email=email.data).first()
         if existing_email:
             raise ValidationError("That email address is already in use.")
+
+    def validate_username(self, username): # check for duplicate username in db
+        existing_user = Users.query.filter_by(username=username.data).first()
+        if existing_user:
+            raise ValidationError("That username is already in use.")
 
 
 class LoginForm(FlaskForm):
@@ -90,13 +90,42 @@ class LoginForm(FlaskForm):
 
 class ResetRequestForm(FlaskForm):
     email = EmailField(validators=[InputRequired(), Length(max=100), Email(message="Enter a valid email address.", check_deliverability=True)], render_kw={"placeholder": "Email address"})
-    submit = SubmitField("Reset Password")
+    submit = SubmitField("Reset password")
 
 
 class ResetPasswordForm(FlaskForm):
     password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "New password"})
     confirm_password = PasswordField(validators=[InputRequired(), Length(min=4, max=20), EqualTo("password", message="The passwords you entered do not match.")], render_kw={"placeholder": "Confirm new password"})
-    submit = SubmitField("Reset Password")
+    submit = SubmitField("Reset password")
+
+
+class ChangeEmailForm(FlaskForm):
+    email = EmailField(validators=[InputRequired(), Length(max=100), Email(message="Enter a valid email address.", check_deliverability=True)], render_kw={"placeholder": "Email address"})
+    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Current password"})
+    submit = SubmitField("Save changes")
+
+    def validate_email(self, email): # check for duplicate email in db
+        existing_email = Users.query.filter_by(email=email.data).first()
+        if existing_email:
+            raise ValidationError("That email address is already in use.")
+
+
+class ChangeUsernameForm(FlaskForm):
+    username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
+    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Current password"})
+    submit = SubmitField("Save changes")
+
+    def validate_username(self, username): # check for duplicate username in db
+        existing_user = Users.query.filter_by(username=username.data).first()
+        if existing_user:
+            raise ValidationError("That username is already in use.")
+
+
+class ChangePasswordForm(FlaskForm):
+    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Current password"})
+    new_password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "New password"})
+    confirm_password = PasswordField(validators=[InputRequired(), Length(min=4, max=20), EqualTo("new_password", message="The passwords you entered do not match.")], render_kw={"placeholder": "Confirm new password"})
+    submit = SubmitField("Save changes")
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -220,9 +249,54 @@ def results():
     return render_template("results.html", query=search_query, result=result, pmids=pmid_list, titles=titles)
 
 
-@app.route("/profile", methods=["GET", "POST"])
-def profile():
-    pass
+@app.route("/profile/email", methods=["GET", "POST"])
+@login_required
+def change_email():
+    form = ChangeEmailForm()
+    if form.validate_on_submit():
+        if bcrypt.check_password_hash(current_user.password, form.password.data):
+            current_user.email = form.email.data
+            db.session.commit()
+            flash("Your changes have been saved successfully.", "success")
+            return render_template("email.html", form=form, success=True)
+        flash("The password you entered is incorrect.", "danger")
+    if form.email.errors:
+        flash(form.email.errors[0], "danger")
+    return render_template("email.html", form=form)
+
+
+@app.route("/profile/username", methods=["GET", "POST"])
+@login_required
+def change_username():
+    form = ChangeUsernameForm()
+    if form.validate_on_submit():
+        if bcrypt.check_password_hash(current_user.password, form.password.data):
+            current_user.username = form.username.data
+            db.session.commit()
+            flash("Your changes have been saved successfully.", "success")
+            return render_template("username.html", form=form, success=True)
+        flash("The password you entered is incorrect.", "danger")
+    if form.username.errors:
+        flash(form.username.errors[0], "danger")
+    return render_template("username.html", form=form)
+
+
+@app.route("/profile/password", methods=["GET", "POST"])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if bcrypt.check_password_hash(current_user.password, form.password.data):
+            hashed_pass = bcrypt.generate_password_hash(form.new_password.data)
+            current_user.password = hashed_pass
+            db.session.commit()
+            flash("Your changes have been saved successfully.", "success")
+            return render_template("password.html", form=form, success=True)
+        flash("The password you entered is incorrect.", "danger")
+        return render_template("password.html", form=form)
+    if form.confirm_password.errors:
+        flash(form.confirm_password.errors[0], "danger")
+    return render_template("password.html", form=form)
 
 
 @app.route("/download")

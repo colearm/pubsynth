@@ -98,15 +98,6 @@ li {
     top: 2px;
 }
 
-.settings-icon {
-    background: url(/static/settings-icon.png);
-    height: 24px;
-    width: 24px;
-    display: inline-block;
-    position: relative;
-    top: 2px;
-}
-
 .about-icon {
     background: url(/static/about-icon.png);
     height: 24px;
