@@ -1,11 +1,11 @@
 <nav class="navbar fixed-top">
         {% if current_user.is_authenticated %}
-            <a class="login logout" href="/logout"><span>Log Out</span></a>
+            <a class="login logout" role="button" href="/logout"><span>Log Out</span></a>
         {% else %}
-            <a class="login" href="/login"><span>Log In</span></a>
+            <a class="login" role="button" href="/login"><span>Log In</span></a>
         {% endif %}
     </button>
-    <button class="navbar-toggler" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
+    <button class="navbar-toggler" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" type="button" aria-label="offcanvas menu toggler" aria-expanded="false">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="offcanvas offcanvas-end" id="offcanvasNavbar">
