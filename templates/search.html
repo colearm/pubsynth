@@ -9,8 +9,6 @@
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 		<link rel="stylesheet" href="/static/main.css" />
 		<style>
-			.container
-
 			.nav-link:link {
 				color: black;
 			}			
@@ -71,15 +69,10 @@
 				margin-top: -150px;
 				scale: 0.9;
 			}
-
-			.container {
-				position: relative;
-				width: 100%;
-			}
 		</style>
 	</head>
 	<body>
-		<div class="container" id="content">
+		<div id="content">
 			<div class="navs">
 				{% include 'offcanvas-login.html' %}
 				<br />
@@ -110,7 +103,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="container" id="loader"></div>
+		<div id="loader"></div>
 		<script>
 			function loading(){
 				document.getElementById("content").style.display = "none";

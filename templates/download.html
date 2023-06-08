@@ -58,23 +58,21 @@
         </style>
     </head>
     <body>
-        <div class="container">
-            <h1>PubSynth</h1>
-            <div class="query">
-                <i class="fa fa-search fa-lg"></i>
-                <span class="search-text">{{ query }}:</span>
-            </div>
-            <div class="result">
-                <p>{{ result }}</p>
-            </div>
-            <div class="references-header">References:</div>
-            <div>
-                {% for pmid in pmids %}
-                    <a href="https://pubmed.ncbi.nlm.nih.gov/{{ pmid }}/" class ="reference-link" target="_blank" rel="noopener noreferrer">
-                        <span class="reference-text">https://pubmed.ncbi.nlm.nih.gov/{{ pmid }}/</span>
-                    </a> <br><br>
-                {% endfor %}
-            </div>
+        <h1>PubSynth</h1>
+        <div class="query">
+            <i class="fa fa-search fa-lg"></i>
+            <span class="search-text">{{ query }}:</span>
+        </div>
+        <div class="result">
+            <p>{{ result }}</p>
+        </div>
+        <div class="references-header">References:</div>
+        <div>
+            {% for pmid in pmids %}
+                <a href="https://pubmed.ncbi.nlm.nih.gov/{{ pmid }}/" class ="reference-link" target="_blank" rel="noopener noreferrer">
+                    <span class="reference-text">https://pubmed.ncbi.nlm.nih.gov/{{ pmid }}/</span>
+                </a> <br><br>
+            {% endfor %}
         </div>
     </body>
 </html>
