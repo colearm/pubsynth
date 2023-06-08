@@ -13,6 +13,9 @@ body {
     top: 30px;
     right: 120px;
     transition: 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     
 }
 

@@ -309,6 +309,21 @@ def download_pdf():
     return response
 
 
+@app.errorhandler(404)
+def error_404(error):
+    return render_template("error-404.html"), 404
+
+
+@app.errorhandler(403)
+def error_403(error):
+    return render_template("error-403.html"), 403
+
+
+@app.errorhandler(500)
+def error_500(error):
+    return render_template("error-500.html"), 500
+
+
 def send_reset_email(user):
     token = user.generate_token()
     msg = Message("PubSynth - Password Reset Request", sender=os.getenv('EMAIL_USER'), recipients=[user.email])
