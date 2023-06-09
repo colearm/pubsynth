@@ -47,6 +47,7 @@ class Users(db.Model, UserMixin):
     email = db.Column(db.String(100), nullable=False, unique=True)
     username = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
+    results = db.relationship('Results', backref='users')
 
     def generate_token(self, expiration=600): # reset link is valid for 10 minutes
         return jwt.encode(
@@ -62,6 +63,17 @@ class Users(db.Model, UserMixin):
         except:
             return
         return Users.query.get(user_id)
+
+
+class Results(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    search_query = db.Column(db.String(500), nullable=False)
+    pmids = db.Column(db.String(50), nullable=False)
+    titles = db.Column(db.String(1000), nullable=False)
+    abstracts = db.Column(db.String(30000), nullable=False)
+    result = db.Column(db.String(10000), nullable=False)
+    favorite = db.Column(db.Boolean, default=False)
 
 
 class RegisterForm(FlaskForm):
@@ -209,16 +221,21 @@ def reset_password(token):
 def search():
     if request.method == "POST":
         search_query = request.form["query"]  # get search query from search bar
-        session["search_query"] = search_query
         pmids = get_pmids(search_query)  # get pmids from search query
-        session["pmids"] = pmids
         titles = get_titles(pmids) # get titles from pmids
-        session["titles"] = titles
         abstracts = get_abstracts(pmids)  # get abstracts from pmids
-        session["abstracts"] = abstracts
         summary = get_summary(abstracts)  # get summary from abstracts
-        session["result"] = summary
-        return redirect("/results")
+        if not current_user.is_authenticated:
+            session["search_query"] = search_query
+            session["pmids"] = pmids
+            session["titles"] = titles
+            session["abstracts"] = abstracts
+            session["result"] = summary
+            return redirect("/results/guest")
+        new_result = Results(user_id=current_user.id, search_query=search_query, pmids=pmids, titles=titles, abstracts=abstracts, result=summary)
+        db.session.add(new_result)
+        db.session.commit()
+        return redirect(url_for("results", result_id=new_result.id)) # pass variable here to indicate that add to favorites should display
     return render_template("search.html")
 
 
@@ -234,19 +251,37 @@ def favorites():
     return render_template("favorites.html")
 
 
-@app.route("/results", methods=["GET", "POST"])
-def results():
-    search_query = session["search_query"]  # query is the same regardless of level of detail
-    pmids = session["pmids"] # pmids are the same regardless of level of detail
-    titles = session["titles"] # titles are the same regardless of level of detail
-    pmid_list = pmids.split(",")
+@app.route("/results/guest", methods=["GET", "POST"])
+def results_guest(): # use session data b/c these results won't be added to db
+    if current_user.is_authenticated:
+        return redirect("/")
+    search_query = session["search_query"] # search query, pmids, and titles will all be the same regardless of http method, so don't have to check session data each time
+    pmids = session["pmids"].split(",")
+    titles = session["titles"].split(",")
     if request.method == "POST":
-        detail = 1 if "increase" in request.form else -1
-        summary = get_summary(session["abstracts"], detail)
-        session["result"] = summary  # update session variable
-        return render_template("results.html", query=search_query, result=summary, pmids=pmid_list, titles=titles)
-    result = session["result"]
-    return render_template("results.html", query=search_query, result=result, pmids=pmid_list, titles=titles)
+        detail = 1 if "increase" in request.form else -1 # 1 ~ increase; 2 ~ decrease
+        new_summary = get_summary(session["abstracts"], detail, session["result"])
+        session["result"] = new_summary  # update session variable
+        return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=new_summary)
+    return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=session["result"])
+
+
+@app.route("/results/<result_id>", methods=["GET", "POST"])
+@login_required
+def results(result_id): # use data from db b/c user is logged in
+    result_row = Results.query.get(result_id)
+    if current_user.id != result_row.user_id:
+        return render_template("error-403.html"), 403 # user is trying to access a result that doesn't belong to them
+    search_query = result_row.search_query # search query, pmids, and titles will all be the same regardless of http method, so don't have to query db each time
+    pmids = result_row.pmids.split(",")
+    titles = result_row.titles.split(",")
+    if request.method == "POST":
+        detail = 1 if "increase" in request.form else -1 # 1 ~ increase; 2 ~ decrease
+        new_summary = get_summary(result_row.abstracts, detail, result_row.result)
+        result_row.result = new_summary # update result column for this row
+        db.session.commit()
+        return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=new_summary)
+    return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=result_row.result)
 
 
 @app.route("/profile/email", methods=["GET", "POST"])
@@ -364,10 +399,10 @@ def get_pmids(search_query):
 def get_titles(pmids):
     esummary_params = {"db" : "pubmed", "id": pmids, "retmode" : "json"}
     esummary = requests.get("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi", params=esummary_params).json()
-    titles = {}
+    titles = []
     for pmid in pmids.split(","):
-        titles[pmid] = esummary["result"][pmid]["title"].rstrip(".")
-    return titles
+        titles.append(esummary["result"][pmid]["title"].rstrip("."))
+    return ','.join(titles)
 
 
 def get_abstracts(pmids):
@@ -377,20 +412,17 @@ def get_abstracts(pmids):
     return parse_abstracts(efetch.text)
 
 
-def get_summary(abstracts, detail=0):
+def get_summary(abstracts, detail=0, summary=None):
     if detail == 0:
         prompt = """Your job is to synthesize the key pieces of information from the following research paper abstracts into one coherent summary that is comprehensible to the 
 average person. Each abstract you are being given starts with #####. Use this to help you isolate the topics of each abstract to create a more intelligible summary. Your 
 summary should be around 10 sentences long: """
 
     elif detail == 1:
-        summary = session["result"]
         prompt = f"""Your job is to synthesize the key pieces of information from the following research paper abstracts into one coherent summary that is comprehensible to the 
 average person. The summary you gave last time was: "{summary}" Use details from the following abstracts to create a new summary with an increased level of detail and 
 technicality. Your #1 priority is to make your response at least 20% longer than your last summary in terms of characters used. Each abstract begins with #####: """
     else:
-
-        summary = session["result"]
         prompt = f"""Your job is to synthesize the key pieces of information from the following research paper abstracts into one coherent summary that is comprehensible to the 
 average person. The summary you gave last time was: "{summary}" Use the following abstracts to create a new, more generalized summary with a decreased level of detail and 
 shorter response length compared to last time. Each abstract begins with #####: """
