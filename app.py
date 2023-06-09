@@ -139,6 +139,10 @@ class ChangePasswordForm(FlaskForm):
     confirm_password = PasswordField(validators=[InputRequired(), Length(min=4, max=20), EqualTo("new_password", message="The passwords you entered do not match.")], render_kw={"placeholder": "Confirm new password"})
     submit = SubmitField("Save changes")
 
+class DeleteAccountForm(FlaskForm):
+    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Current password"})
+    submit = SubmitField("Delete account")
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -293,7 +297,7 @@ def change_email():
             current_user.email = form.email.data
             db.session.commit()
             flash("Your changes have been saved successfully.", "success")
-            return render_template("email.html", form=form, success=True)
+            return render_template("email.html", form=form)
         flash("The password you entered is incorrect.", "danger")
     if form.email.errors:
         flash(form.email.errors[0], "danger")
@@ -309,7 +313,7 @@ def change_username():
             current_user.username = form.username.data
             db.session.commit()
             flash("Your changes have been saved successfully.", "success")
-            return render_template("username.html", form=form, success=True)
+            return render_template("username.html", form=form)
         flash("The password you entered is incorrect.", "danger")
     if form.username.errors:
         flash(form.username.errors[0], "danger")
@@ -326,12 +330,27 @@ def change_password():
             current_user.password = hashed_pass
             db.session.commit()
             flash("Your changes have been saved successfully.", "success")
-            return render_template("password.html", form=form, success=True)
+            return render_template("password.html", form=form)
         flash("The password you entered is incorrect.", "danger")
         return render_template("password.html", form=form)
     if form.confirm_password.errors:
         flash(form.confirm_password.errors[0], "danger")
     return render_template("password.html", form=form)
+
+
+@app.route("/profile/delete", methods=["GET", "POST"])
+@login_required
+def delete_account():
+    form = DeleteAccountForm()
+    if form.validate_on_submit():
+        if bcrypt.check_password_hash(current_user.password, form.password.data):
+            Results.query.filter_by(user_id=current_user.id).delete()
+            Users.query.filter_by(id=current_user.id).delete()
+            db.session.commit()
+            flash("Your account was successfully deleted.", "success")
+            return redirect("/login")
+        flash("The password you entered is incorrect.", "danger")
+    return render_template("delete.html", form=form)
 
 
 @app.route("/download")

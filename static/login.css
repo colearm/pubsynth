@@ -62,6 +62,18 @@ h3 {
     border-color: #686868;
 }
 
+.btn-danger {
+    background-color: #E03444;
+    border-color: #E03444;
+    width: 350px;
+    height: 50px;
+}
+
+.btn-danger:hover {
+    background-color: #D77167;
+    border-color: #D77167;
+}
+
 a {
     color: #272727;
     text-decoration: underline;
