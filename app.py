@@ -266,8 +266,8 @@ def results_guest(): # use session data b/c these results won't be added to db
         detail = 1 if "increase" in request.form else -1 # 1 ~ increase; 2 ~ decrease
         new_summary = get_summary(session["abstracts"], detail, session["result"])
         session["result"] = new_summary  # update session variable
-        return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=new_summary)
-    return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=session["result"])
+        return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=new_summary, result_id="guest")
+    return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=session["result"], result_id="guest")
 
 
 @app.route("/results/<result_id>", methods=["GET", "POST"])
@@ -284,8 +284,8 @@ def results(result_id): # use data from db b/c user is logged in
         new_summary = get_summary(result_row.abstracts, detail, result_row.result)
         result_row.result = new_summary # update result column for this row
         db.session.commit()
-        return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=new_summary)
-    return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=result_row.result)
+        return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=new_summary, result_id=result_id)
+    return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=result_row.result, result_id=result_id)
 
 
 @app.route("/profile/email", methods=["GET", "POST"])
@@ -353,11 +353,23 @@ def delete_account():
     return render_template("delete.html", form=form)
 
 
-@app.route("/download")
-def download_pdf():
-    pdf = generate_pdf()
+@app.route("/download/<result_id>")
+def download_pdf(result_id):
+    if not current_user.is_authenticated:
+        if result_id == "guest":
+            search_query = session["search_query"]
+            pdf = generate_pdf(search_query, session["pmids"].split(","), session["result"])
+        else:
+            return render_template("error-403.html"), 403
+    else:
+        result_row = Results.query.get(result_id)
+        if not result_row or current_user.id != result_row.user_id:
+            return render_template("error-403.html"), 403   
+        else:
+            search_query = result_row.search_query
+            pdf = generate_pdf(search_query, result_row.pmids.split(","), result_row.result)
+            
     response = Response(pdf)
-    search_query = session["search_query"]
     response.headers["Content-Disposition"] = f"attachment; filename={search_query}.pdf"
     response.mimetype = "application/pdf"
     return response
@@ -458,8 +470,8 @@ shorter response length compared to last time. Each abstract begins with #####: 
     return gpt_response["choices"][0]["message"]["content"]
 
 
-def generate_pdf():
-    render = render_template("download.html", pmids=session["pmids"].split(","), query=session["search_query"], result=session["result"])
+def generate_pdf(query, pmids, result):
+    render = render_template("download.html", query=query, pmids=pmids, result=result)
     options = {
         'page-size': 'Letter',
         'margin-top': '0.75in',
