@@ -246,13 +246,29 @@ def search():
 @app.route("/recents")
 @login_required
 def recents():
-    return render_template("recents.html")
+    id_list = []
+    query_list = []
+    result_list = []
+    rows = Results.query.filter_by(user_id=current_user.id).order_by(Results.id.desc()).limit(10)
+    for row in rows:
+        id_list.append(row.id)
+        query_list.append(row.search_query)
+        result_list.append(row.result)
+    return render_template("recents.html", id_list=id_list, query_list=query_list, result_list=result_list)
 
 
 @app.route("/favorites")
 @login_required
 def favorites():
-    return render_template("favorites.html")
+    id_list = []
+    query_list = []
+    result_list = []
+    rows = Results.query.filter_by(user_id=current_user.id, favorite=1).order_by(Results.id.desc()).all()
+    for row in rows:
+        id_list.append(row.id)
+        query_list.append(row.search_query)
+        result_list.append(row.result)
+    return render_template("favorites.html", id_list=id_list, query_list=query_list, result_list=result_list)
 
 
 @app.route("/results/guest", methods=["GET", "POST"])
