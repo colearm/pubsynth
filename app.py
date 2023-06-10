@@ -16,7 +16,7 @@ import pdfkit
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DB_CONNECTION_STRING')
 app.config['SECRET_KEY'] = os.getenv('PS_SECRET_KEY')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -39,7 +39,7 @@ login_manager.login_message_category = "danger"
 
 @login_manager.user_loader # loads users object from the user id stored in the session
 def load_user(user_id):
-    return Users.query.get(int(user_id))
+    return db.session.get(Users, user_id)
 
 
 class Users(db.Model, UserMixin):
@@ -62,7 +62,7 @@ class Users(db.Model, UserMixin):
             user_id = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])['user_id']
         except:
             return
-        return Users.query.get(user_id)
+        return db.session.get(Users, user_id)
 
 
 class Results(db.Model):
@@ -291,7 +291,7 @@ def results_guest(): # use session data b/c these results won't be added to db
 @app.route("/results/<result_id>", methods=["GET", "POST"])
 @login_required
 def results(result_id): # use data from db b/c user is logged in
-    result_row = Results.query.get(result_id)
+    result_row = db.session.get(Results, result_id)
     if (not result_row) or (current_user.id != result_row.user_id):
         return render_template("error-403.html"), 403 # user is trying to access a result that doesn't belong to them
     search_query = result_row.search_query # search query, pmids, and titles will all be the same regardless of http method, so don't have to query db each time
@@ -391,7 +391,7 @@ def download_pdf(result_id):
         else:
             return render_template("error-403.html"), 403
     else:
-        result_row = Results.query.get(result_id)
+        result_row = db.session.get(Results, result_id)
         if (not result_row) or (current_user.id != result_row.user_id):
             return render_template("error-403.html"), 403   
         else:
@@ -406,7 +406,7 @@ def download_pdf(result_id):
 
 @app.route("/api/results/<result_id>")
 def result_api(result_id):
-    result_row = Results.query.get(result_id)
+    result_row = db.session.get(Results, result_id)
     if (not result_row) or current_user.id != result_row.user_id:
         return render_template("error-403.html"), 403
     result = [{
