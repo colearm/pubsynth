@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, Response, url_for, flash
+from flask import Flask, render_template, request, redirect, session, Response, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
@@ -402,6 +402,22 @@ def download_pdf(result_id):
     response.headers["Content-Disposition"] = f"attachment; filename={search_query}.pdf"
     response.mimetype = "application/pdf"
     return response
+
+
+@app.route("/api/results/<result_id>")
+def result_api(result_id):
+    result_row = Results.query.get(result_id)
+    if (not result_row) or current_user.id != result_row.user_id:
+        return render_template("error-403.html"), 403
+    result = [{
+        'id' : result_row.id,
+        'query' : result_row.search_query,
+        'pmids' : result_row.pmids,
+        'titles' : result_row.titles,
+        'result' : result_row.result,
+        'favorite' : result_row.favorite
+    }]
+    return jsonify(result)
 
 
 @app.errorhandler(404)
