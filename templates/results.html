@@ -127,6 +127,10 @@
 				padding-left: 1rem;
 			}
 
+			#more-item {
+				padding-right: 0px;
+			}
+
 			.more-icon {
 				height: 24px;
 				width: 24px;
@@ -136,8 +140,22 @@
 				filter: invert(50%) sepia(0%) saturate(0%) hue-rotate(137deg) brightness(95%) contrast(86%);
 			}
 
+			.favorite {
+				background: none;
+				border: none;
+			}
+
+			.favorite-text {
+				position: relative;
+				right: 6px;
+			}
+
 			.plus-icon {
 				background: url(/static/plus-icon.png);
+			}
+
+			.minus-icon {
+				background: url(/static/minus-icon.png);
 			}
 
 			.dl-icon {
@@ -248,24 +266,10 @@
 			<div class="flex">
 				<div class="card rounded-3" id="more-options" style="visibility: hidden"> <!-- INVISIBLE MIRROR OF MORE OPTIONS MENU TO KEEP RESULT CENTERED -->
 					<ul class="list-group list-group-flush">
-						<li class="list-group-item" id="more-item" data-label="Add to favorites">
-							<a href="#">
-								<i class="more-icon plus-icon"></i>
-								<span class="more-text">Add to favorites</span>
-							</a>
-						</li>
-						<li class="list-group-item" id="more-item" data-label="Download summary">
-							<a href="#">
-								<i class="more-icon dl-icon"></i>
-								<span class="more-text">Download summary</span>
-							</a>
-						</li>
-						<li class="list-group-item" id="more-item" data-label="Share summary">
-							<a href="#">
-								<i class="more-icon share-icon"></i>
-								<span class="more-text">Share summary</span>
-							</a>
-						</li>
+						{% if result_id != "guest" %}
+							<li class="list-group-item" id="more-item" data-label="Remove from favoritesss"></li>
+						{% endif %}
+						<li class="list-group-item" id="more-item" data-label="Download summary"></li>
 					</ul>
 				</div>
 				<div class="card rounded-3" id="result-card">
@@ -290,12 +294,23 @@
 				</div>
 				<div class="card rounded-3" id="more-options">
 					<ul class="list-group list-group-flush">
-						<li class="list-group-item" id="more-item" data-label="Add to favorites">
-							<a href="#">
-								<i class="more-icon plus-icon"></i>
-								<span class="more-text">Add to favorites</span>
-							</a>
-						</li>
+						{% if result_id != "guest" %}
+							<li class="list-group-item" id="more-item" data-label="Remove from favoritesss">
+								<form method="post">
+									{% if favorite %}
+										<button class="favorite" type="submit" name="remove-favorite">
+											<i class="more-icon minus-icon"></i>
+											<span class="more-text favorite-text">Remove from favorites</span>
+										</button>
+									{% else %}
+										<button class="favorite" type="submit" name="add-favorite">
+											<i class="more-icon plus-icon"></i>
+											<span class="more-text favorite-text">Add to favorites</span>
+										</button>
+									{% endif %}
+								</form>
+							</li>
+						{% endif %}
 						<li class="list-group-item" id="more-item" data-label="Download summary">
 							<a href="{{url_for('download_pdf', result_id=result_id)}}">
 								<i class="more-icon dl-icon"></i>

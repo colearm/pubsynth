@@ -259,6 +259,8 @@ def favorites():
 def results_guest(): # use session data b/c these results won't be added to db
     if current_user.is_authenticated:
         return redirect("/")
+    if not "search_query" in session:
+        return render_template("error-403.html"), 403
     search_query = session["search_query"] # search query, pmids, and titles will all be the same regardless of http method, so don't have to check session data each time
     pmids = session["pmids"].split(",")
     titles = session["titles"].split(",")
@@ -274,18 +276,29 @@ def results_guest(): # use session data b/c these results won't be added to db
 @login_required
 def results(result_id): # use data from db b/c user is logged in
     result_row = Results.query.get(result_id)
-    if current_user.id != result_row.user_id:
+    if (not result_row) or (current_user.id != result_row.user_id):
         return render_template("error-403.html"), 403 # user is trying to access a result that doesn't belong to them
     search_query = result_row.search_query # search query, pmids, and titles will all be the same regardless of http method, so don't have to query db each time
     pmids = result_row.pmids.split(",")
     titles = result_row.titles.split(",")
     if request.method == "POST":
+        # toggle favorite
+        if "add-favorite" in request.form:
+            result_row.favorite = 1
+            db.session.commit()
+            return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=result_row.result, result_id=result_id, favorite=1)    
+        if "remove-favorite" in request.form:
+            result_row.favorite = 0
+            db.session.commit()
+            return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=result_row.result, result_id=result_id, favorite=0)
+        
+        # adjust detail
         detail = 1 if "increase" in request.form else -1 # 1 ~ increase; 2 ~ decrease
         new_summary = get_summary(result_row.abstracts, detail, result_row.result)
         result_row.result = new_summary # update result column for this row
         db.session.commit()
-        return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=new_summary, result_id=result_id)
-    return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=result_row.result, result_id=result_id)
+        return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=new_summary, result_id=result_id, favorite=result_row.favorite)
+    return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=result_row.result, result_id=result_id, favorite=result_row.favorite)
 
 
 @app.route("/profile/email", methods=["GET", "POST"])
@@ -363,7 +376,7 @@ def download_pdf(result_id):
             return render_template("error-403.html"), 403
     else:
         result_row = Results.query.get(result_id)
-        if not result_row or current_user.id != result_row.user_id:
+        if (not result_row) or (current_user.id != result_row.user_id):
             return render_template("error-403.html"), 403   
         else:
             search_query = result_row.search_query
