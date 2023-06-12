@@ -11,7 +11,21 @@
 		<style>
 			.nav-link:link {
 				color: black;
-			}			
+			}
+			
+			.nav-link:visited {
+				color: black;
+			}
+
+			.nav-link:hover {
+				color: black;
+				font-weight: bold;
+			}
+
+			.nav-link:active {
+				color: black;
+				font-weight: bold;
+			}
 			
 			.navs {
 				margin-bottom: 15vh;
@@ -97,7 +111,7 @@
 					<form method="post" onsubmit="loading();">
 						<div class="form-group">
 							<i class="fa fa-search fa-lg form-control-feedback"></i>
-							<input type="search" class="form-control form-control-lg rounded-4" name ="query" placeholder="Search for a topic..." />
+							<input type="search" class="form-control form-control-lg rounded-4" name ="query" maxlength=150 placeholder="Search for a topic..." />
 						</div>
 					</form>
 				</div>
