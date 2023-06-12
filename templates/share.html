@@ -9,7 +9,7 @@
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 		<link rel="stylesheet" href="/static/main.css" />
 		<style>
-			#content {
+            #content {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -272,9 +272,6 @@
 			<div class="flex">
 				<div class="card rounded-3" id="more-options" style="visibility: hidden"> <!-- INVISIBLE MIRROR OF MORE OPTIONS MENU TO KEEP RESULT CENTERED -->
 					<ul class="list-group list-group-flush">
-						{% if result_id != "guest" %}
-							<li class="list-group-item" id="more-item" data-label="Remove from favoritesss"></li>
-						{% endif %}
 						<li class="list-group-item" id="more-item" data-label="Download summary"></li>
 					</ul>
 				</div>
@@ -288,35 +285,9 @@
 							<p>{{ result }}</p>
 						</li>
 					</ul>
-					<div class="card-footer">
-						<form method="post" onsubmit="loading();">
-							<button class="arrow-link arrow-icon" type="submit" name="increase" value=1 title="Increase level of detail"></button>
-						</form>
-						<span class="detail">Level of detail</span>
-						<form method="post" onsubmit="loading();">
-							<button class="arrow-link arrow-icon" type="submit" name="decrease" title="Decrease level of detail" style="rotate: 180deg;"></button>
-						</form>
-					</div>
 				</div>
 				<div class="card rounded-3" id="more-options">
 					<ul class="list-group list-group-flush">
-						{% if result_id != "guest" %}
-							<li class="list-group-item" id="more-item" data-label="Remove from favoritesss">
-								<form method="post">
-									{% if favorite %}
-										<button class="favorite" type="submit" name="remove-favorite">
-											<i class="more-icon minus-icon"></i>
-											<span class="more-text favorite-text">Remove from favorites</span>
-										</button>
-									{% else %}
-										<button class="favorite" type="submit" name="add-favorite">
-											<i class="more-icon plus-icon"></i>
-											<span class="more-text favorite-text">Add to favorites</span>
-										</button>
-									{% endif %}
-								</form>
-							</li>
-						{% endif %}
 						<li class="list-group-item" id="more-item" data-label="Download summary">
 							<a href="{{url_for('download_pdf', result_id=result_id)}}">
 								<i class="more-icon dl-icon"></i>
@@ -330,49 +301,45 @@
 							</a>
 							<div class="collapse" id="share-options">
 								<ul class="list-group list-group-flush mt-1">
-									{% if result_id != "guest" %}
-										<li class="list-group-item" id="more-item" data-label="Copy Link">
-											<button id="copy-link" onclick="copyLink();">
-												<i class="more-icon copy-icon"></i>
-												<span class="more-text">Copy Link</span>
-											</button>
-										</li>
-									{% endif %}
+									<li class="list-group-item" id="more-item" data-label="Copy Link">
+										<button id="copy-link" onclick="copyLink();">
+											<i class="more-icon copy-icon"></i>
+											<span class="more-text">Copy Link</span>
+										</button>
+									</li>
 									<li class="list-group-item" id="more-item" data-label="Email">
 										<a href="mailto:?subject=Re%3A%20{{ query }}&body={{ result }}">
 											<i class="more-icon email-icon"></i>
 											<span class="more-text">Email</span>
 										</a>
 									</li>
-									{% if result_id != "guest" %}
-										<li class="list-group-item" id="more-item" data-label="Twitter">
-											<a href="https://twitter.com/intent/tweet?url=&text=%F0%9F%94%8E%20{{ query }}%0A%0ACheck%20out%20PubSynth's%20response%20below%20%F0%9F%91%87%0A{{url_for('share_result', result_id=result_id, _external=True)}}%0A%0A&hashtags=pubsynth" target="_blank" rel="noopener noreferrer">
-												<i class="more-icon twitter-icon"></i>
-												<span class="more-text">Twitter</span>
-											</a>
-										</li>
-									{% endif %}
+									<li class="list-group-item" id="more-item" data-label="Twitter">
+										<a href="https://twitter.com/intent/tweet?url=&text=%F0%9F%94%8E%20{{ query }}%0A%0ACheck%20out%20PubSynth's%20response%20below%20%F0%9F%91%87%0A{{url_for('share_result', result_id=result_id, _external=True)}}%0A%0A&hashtags=pubsynth" target="_blank" rel="noopener noreferrer">
+											<i class="more-icon twitter-icon"></i>
+											<span class="more-text">Twitter</span>
+										</a>
+									</li>
 								</ul>
 							</div>
 						</li>
 					</ul>
 				</div>
-				<div class="card rounded-3" id="references-card">
-					<div class="card-header" id="references-header">
-						<i class="link-icon"></i>
-						<span class="references">References</span>
-					</div>
-					<ul class="list-group list-group-flush">
-						{% for pmid in pmids %}
-							<li class="list-group-item" id="references-item" data-label="{{ loop.index }}. &nbsp; {{ titles[loop.index0] }}">
-								<a href="https://pubmed.ncbi.nlm.nih.gov/{{ pmid }}/" title="View full article" target="_blank" rel="noopener noreferrer">
-									<span class="pr-5">{{ loop.index }}. &nbsp; {{ titles[loop.index0] }}</span>
-								</a>
-							</li>
-						{% endfor %}
-					</ul>
-				</div>
-			</div>
+            </div>
+            <div class="card rounded-3" id="references-card">
+                <div class="card-header" id="references-header">
+                    <i class="link-icon"></i>
+                    <span class="references">References</span>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for pmid in pmids %}
+                        <li class="list-group-item" id="references-item" data-label="{{ loop.index }}. &nbsp; {{ titles[loop.index0] }}">
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/{{ pmid }}/" title="View full article" target="_blank" rel="noopener noreferrer">
+                                <span class="pr-5">{{ loop.index }}. &nbsp; {{ titles[loop.index0] }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
 		</div>
 		<div class="alert alert-secondary" id="alert" role="alert">
             <span>Copied to clipboard!</span>

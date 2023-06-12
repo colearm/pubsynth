@@ -276,10 +276,12 @@ def results_guest(): # use session data b/c these results won't be added to db
     if current_user.is_authenticated:
         return redirect("/")
     if not "search_query" in session:
-        return render_template("error-403.html"), 403
+        return render_template("error-404.html"), 404
+    
     search_query = session["search_query"] # search query, pmids, and titles will all be the same regardless of http method, so don't have to check session data each time
     pmids = session["pmids"].split(",")
     titles = session["titles"].split(",")
+
     if request.method == "POST":
         detail = 1 if "increase" in request.form else -1 # 1 ~ increase; 2 ~ decrease
         new_summary = get_summary(session["abstracts"], detail, session["result"])
@@ -292,11 +294,15 @@ def results_guest(): # use session data b/c these results won't be added to db
 @login_required
 def results(result_id): # use data from db b/c user is logged in
     result_row = db.session.get(Results, result_id)
-    if (not result_row) or (current_user.id != result_row.user_id):
-        return render_template("error-403.html"), 403 # user is trying to access a result that doesn't belong to them
+    if not result_row: # if result id doesn't exist
+        return render_template("error-404.html"), 404
+    elif current_user.id != result_row.user_id: # if user is trying to access a result that doesn't belong to them
+        return render_template("error-403.html"), 403
+    
     search_query = result_row.search_query # search query, pmids, and titles will all be the same regardless of http method, so don't have to query db each time
     pmids = result_row.pmids.split(",")
     titles = result_row.titles.split(",")
+
     if request.method == "POST":
         # toggle favorite
         if "add-favorite" in request.form:
@@ -384,16 +390,15 @@ def delete_account():
 
 @app.route("/download/<result_id>")
 def download_pdf(result_id):
-    if not current_user.is_authenticated:
-        if result_id == "guest":
-            search_query = session["search_query"]
-            pdf = generate_pdf(search_query, session["pmids"].split(","), session["result"])
-        else:
-            return render_template("error-403.html"), 403
+    if not current_user.is_authenticated and result_id == "guest":
+        if not "search_query" in session:
+            return render_template("error-404.html"), 404
+        search_query = session["search_query"]
+        pdf = generate_pdf(search_query, session["pmids"].split(","), session["result"])
     else:
         result_row = db.session.get(Results, result_id)
-        if (not result_row) or (current_user.id != result_row.user_id):
-            return render_template("error-403.html"), 403   
+        if not result_row:
+            return render_template("error-404.html"), 404
         else:
             search_query = result_row.search_query
             pdf = generate_pdf(search_query, result_row.pmids.split(","), result_row.result)
@@ -404,11 +409,24 @@ def download_pdf(result_id):
     return response
 
 
+@app.route("/results/share/<result_id>")
+def share_result(result_id):
+    result_row = db.session.get(Results, result_id)
+    if not result_row:
+        return render_template("error-404.html"), 404
+    return render_template("share.html", query=result_row.search_query, pmids=result_row.pmids.split(","), 
+                           titles=result_row.titles.split(","), result=result_row.result, result_id=result_id)
+
+
 @app.route("/api/results/<result_id>")
+@login_required
 def result_api(result_id):
     result_row = db.session.get(Results, result_id)
-    if (not result_row) or current_user.id != result_row.user_id:
+    if not result_row:
+        return render_template("error-404.html"), 404
+    elif current_user.id != result_row.user_id:
         return render_template("error-403.html"), 403
+    
     result = [{
         'id' : result_row.id,
         'query' : result_row.search_query,
