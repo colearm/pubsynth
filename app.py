@@ -24,6 +24,7 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.getenv('EMAIL_USER')
 app.config['MAIL_PASSWORD'] = os.getenv('EMAIL_PASS')
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 db = SQLAlchemy(app)
 mail = Mail(app)
 bcrypt = Bcrypt(app)
@@ -427,14 +428,14 @@ def result_api(result_id):
     elif current_user.id != result_row.user_id:
         return render_template("error-403.html"), 403
     
-    result = [{
+    result = {
         'id' : result_row.id,
         'query' : result_row.search_query,
         'pmids' : result_row.pmids,
         'titles' : result_row.titles,
         'result' : result_row.result,
         'favorite' : result_row.favorite
-    }]
+    }
     return jsonify(result)
 
 
