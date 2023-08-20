@@ -453,6 +453,10 @@ def error_403(error):
 def error_500(error):
     return render_template("error-500.html"), 500
 
+@app.errorhandler(502)
+def error_502(error):
+    return render_template("error-502.html"), 502
+
 
 def send_reset_email(user):
     token = user.generate_token()
