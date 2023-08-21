@@ -8,6 +8,7 @@ from wtforms import EmailField, StringField, PasswordField, BooleanField, Submit
 from wtforms.validators import InputRequired, Length, ValidationError, Email, EqualTo
 from datetime import timedelta
 from time import time
+from retrying import retry
 import jwt
 import requests
 import os
@@ -223,10 +224,13 @@ def reset_password(token):
 
 
 @app.route("/", methods=["GET", "POST"])
+@retry(stop_max_attempt_number=3, wait_fixed=3000)
 def search():
     if request.method == "POST":
         search_query = request.form["query"]  # get search query from search bar
         pmids = get_pmids(search_query)  # get pmids from search query
+        if not pmids:
+            return render_template("error-no-matches.html"), 500
         titles = get_titles(pmids) # get titles from pmids
         abstracts = get_abstracts(pmids)  # get abstracts from pmids
         summary = get_summary(abstracts)  # get summary from abstracts
