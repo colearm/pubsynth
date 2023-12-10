@@ -39,7 +39,7 @@ login_manager.login_message = "Please log in to view this page."
 login_manager.login_message_category = "danger"
 
 
-@login_manager.user_loader # loads users object from the user id stored in the session
+@login_manager.user_loader  # loads users object from the user id stored in the session
 def load_user(user_id):
     return db.session.get(Users, user_id)
 
@@ -51,17 +51,18 @@ class Users(db.Model, UserMixin):
     password = db.Column(db.String(80), nullable=False)
     results = db.relationship('Results', backref='users')
 
-    def generate_token(self, expiration=600): # reset link is valid for 10 minutes
+    def generate_token(self, expiration=600):  # reset link is valid for 10 minutes
         return jwt.encode(
             {"user_id": self.id, "exp": time() + expiration},
             app.config['SECRET_KEY'],
             algorithm='HS256'
         )
-    
+
     @staticmethod
     def verify_token(token):
         try:
-            user_id = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])['user_id']
+            user_id = jwt.decode(token, app.config['SECRET_KEY'], algorithms=[
+                                 'HS256'])['user_id']
         except:
             return
         return db.session.get(Users, user_id)
@@ -69,7 +70,8 @@ class Users(db.Model, UserMixin):
 
 class Results(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.id'), nullable=False, index=True)
     search_query = db.Column(db.String(500), nullable=False)
     pmids = db.Column(db.String(50), nullable=False)
     titles = db.Column(db.String(1000), nullable=False)
@@ -79,70 +81,87 @@ class Results(db.Model):
 
 
 class RegisterForm(FlaskForm):
-    email = EmailField(validators=[InputRequired(), Length(max=100), Email(message="Enter a valid email address.", check_deliverability=True)], render_kw={"placeholder": "Email address"})
-    username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
-    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"}) # different than pass length in db b/c pass will be hashed
+    email = EmailField(validators=[InputRequired(), Length(max=100), Email(
+        message="Enter a valid email address.", check_deliverability=True)], render_kw={"placeholder": "Email address"})
+    username = StringField(validators=[InputRequired(), Length(
+        min=4, max=20)], render_kw={"placeholder": "Username"})
+    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={
+                             "placeholder": "Password"})  # different than pass length in db b/c pass will be hashed
     submit = SubmitField("Register")
 
-    def validate_email(self, email): # check for duplicate email in db
+    def validate_email(self, email):  # check for duplicate email in db
         existing_email = Users.query.filter_by(email=email.data).first()
         if existing_email:
             raise ValidationError("That email address is already in use.")
 
-    def validate_username(self, username): # check for duplicate username in db
+    def validate_username(self, username):  # check for duplicate username in db
         existing_user = Users.query.filter_by(username=username.data).first()
         if existing_user:
             raise ValidationError("That username is already in use.")
 
 
 class LoginForm(FlaskForm):
-    username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
-    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"}) # different than pass length in db b/c pass will be hashed
+    username = StringField(validators=[InputRequired(), Length(
+        min=4, max=20)], render_kw={"placeholder": "Username"})
+    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={
+                             "placeholder": "Password"})  # different than pass length in db b/c pass will be hashed
     remember_me = BooleanField()
     submit = SubmitField("Log in")
 
 
 class ResetRequestForm(FlaskForm):
-    email = EmailField(validators=[InputRequired(), Length(max=100), Email(message="Enter a valid email address.", check_deliverability=True)], render_kw={"placeholder": "Email address"})
+    email = EmailField(validators=[InputRequired(), Length(max=100), Email(
+        message="Enter a valid email address.", check_deliverability=True)], render_kw={"placeholder": "Email address"})
     submit = SubmitField("Reset password")
 
 
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "New password"})
-    confirm_password = PasswordField(validators=[InputRequired(), Length(min=4, max=20), EqualTo("password", message="The passwords you entered do not match.")], render_kw={"placeholder": "Confirm new password"})
+    password = PasswordField(validators=[InputRequired(), Length(
+        min=4, max=20)], render_kw={"placeholder": "New password"})
+    confirm_password = PasswordField(validators=[InputRequired(), Length(min=4, max=20), EqualTo(
+        "password", message="The passwords you entered do not match.")], render_kw={"placeholder": "Confirm new password"})
     submit = SubmitField("Reset password")
 
 
 class ChangeEmailForm(FlaskForm):
-    email = EmailField(validators=[InputRequired(), Length(max=100), Email(message="Enter a valid email address.", check_deliverability=True)], render_kw={"placeholder": "Email address"})
-    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Current password"})
+    email = EmailField(validators=[InputRequired(), Length(max=100), Email(
+        message="Enter a valid email address.", check_deliverability=True)], render_kw={"placeholder": "Email address"})
+    password = PasswordField(validators=[InputRequired(), Length(
+        min=4, max=20)], render_kw={"placeholder": "Current password"})
     submit = SubmitField("Save changes")
 
-    def validate_email(self, email): # check for duplicate email in db
+    def validate_email(self, email):  # check for duplicate email in db
         existing_email = Users.query.filter_by(email=email.data).first()
         if existing_email:
             raise ValidationError("That email address is already in use.")
 
 
 class ChangeUsernameForm(FlaskForm):
-    username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
-    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Current password"})
+    username = StringField(validators=[InputRequired(), Length(
+        min=4, max=20)], render_kw={"placeholder": "Username"})
+    password = PasswordField(validators=[InputRequired(), Length(
+        min=4, max=20)], render_kw={"placeholder": "Current password"})
     submit = SubmitField("Save changes")
 
-    def validate_username(self, username): # check for duplicate username in db
+    def validate_username(self, username):  # check for duplicate username in db
         existing_user = Users.query.filter_by(username=username.data).first()
         if existing_user:
             raise ValidationError("That username is already in use.")
 
 
 class ChangePasswordForm(FlaskForm):
-    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Current password"})
-    new_password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "New password"})
-    confirm_password = PasswordField(validators=[InputRequired(), Length(min=4, max=20), EqualTo("new_password", message="The passwords you entered do not match.")], render_kw={"placeholder": "Confirm new password"})
+    password = PasswordField(validators=[InputRequired(), Length(
+        min=4, max=20)], render_kw={"placeholder": "Current password"})
+    new_password = PasswordField(validators=[InputRequired(), Length(
+        min=4, max=20)], render_kw={"placeholder": "New password"})
+    confirm_password = PasswordField(validators=[InputRequired(), Length(min=4, max=20), EqualTo(
+        "new_password", message="The passwords you entered do not match.")], render_kw={"placeholder": "Confirm new password"})
     submit = SubmitField("Save changes")
 
+
 class DeleteAccountForm(FlaskForm):
-    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Current password"})
+    password = PasswordField(validators=[InputRequired(), Length(
+        min=4, max=20)], render_kw={"placeholder": "Current password"})
     submit = SubmitField("Delete account")
 
 
@@ -153,14 +172,15 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         hashed_pass = bcrypt.generate_password_hash(form.password.data)
-        new_user = Users(email=form.email.data, username=form.username.data, password=hashed_pass)
+        new_user = Users(email=form.email.data,
+                         username=form.username.data, password=hashed_pass)
         db.session.add(new_user)
         db.session.commit()
         return redirect("/login")
     if form.email.errors:
         flash(form.email.errors[0], "danger")
     elif form.username.errors:
-        flash(form.username.errors[0], "danger") 
+        flash(form.username.errors[0], "danger")
     return render_template("register.html", form=form)
 
 
@@ -224,14 +244,15 @@ def reset_password(token):
 
 
 @app.route("/", methods=["GET", "POST"])
-@retry(stop_max_attempt_number=3, wait_fixed=3000)
+@retry(stop_max_attempt_number=6, wait_fixed=4000)
 def search():
     if request.method == "POST":
-        search_query = request.form["query"]  # get search query from search bar
+        # get search query from search bar
+        search_query = request.form["query"]
         pmids = get_pmids(search_query)  # get pmids from search query
         if not pmids:
             return render_template("error-no-matches.html"), 500
-        titles = get_titles(pmids) # get titles from pmids
+        titles = get_titles(pmids)  # get titles from pmids
         abstracts = get_abstracts(pmids)  # get abstracts from pmids
         summary = get_summary(abstracts)  # get summary from abstracts
         if not current_user.is_authenticated:
@@ -241,10 +262,12 @@ def search():
             session["abstracts"] = abstracts
             session["result"] = summary
             return redirect("/results/guest")
-        new_result = Results(user_id=current_user.id, search_query=search_query, pmids=pmids, titles=titles, abstracts=abstracts, result=summary)
+        new_result = Results(user_id=current_user.id, search_query=search_query,
+                             pmids=pmids, titles=titles, abstracts=abstracts, result=summary)
         db.session.add(new_result)
         db.session.commit()
-        return redirect(url_for("results", result_id=new_result.id)) # pass variable here to indicate that add to favorites should display
+        # pass variable here to indicate that add to favorites should display
+        return redirect(url_for("results", result_id=new_result.id))
     return render_template("search.html")
 
 
@@ -254,7 +277,8 @@ def recents():
     id_list = []
     query_list = []
     result_list = []
-    rows = Results.query.filter_by(user_id=current_user.id).order_by(Results.id.desc()).limit(10)
+    rows = Results.query.filter_by(user_id=current_user.id).order_by(
+        Results.id.desc()).limit(10)
     for row in rows:
         id_list.append(row.id)
         query_list.append(row.search_query)
@@ -268,7 +292,8 @@ def favorites():
     id_list = []
     query_list = []
     result_list = []
-    rows = Results.query.filter_by(user_id=current_user.id, favorite=1).order_by(Results.id.desc()).all()
+    rows = Results.query.filter_by(
+        user_id=current_user.id, favorite=1).order_by(Results.id.desc()).all()
     for row in rows:
         id_list.append(row.id)
         query_list.append(row.search_query)
@@ -277,19 +302,21 @@ def favorites():
 
 
 @app.route("/results/guest", methods=["GET", "POST"])
-def results_guest(): # use session data b/c these results won't be added to db
+def results_guest():  # use session data b/c these results won't be added to db
     if current_user.is_authenticated:
         return redirect("/")
     if not "search_query" in session:
         return render_template("error-404.html"), 404
-    
-    search_query = session["search_query"] # search query, pmids, and titles will all be the same regardless of http method, so don't have to check session data each time
+
+    # search query, pmids, and titles will all be the same regardless of http method, so don't have to check session data each time
+    search_query = session["search_query"]
     pmids = session["pmids"].split(",")
     titles = session["titles"].split(",")
 
     if request.method == "POST":
-        detail = 1 if "increase" in request.form else -1 # 1 ~ increase; 2 ~ decrease
-        new_summary = get_summary(session["abstracts"], detail, session["result"])
+        detail = 1 if "increase" in request.form else -1  # 1 ~ increase; 2 ~ decrease
+        new_summary = get_summary(
+            session["abstracts"], detail, session["result"])
         session["result"] = new_summary  # update session variable
         return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=new_summary, result_id="guest")
     return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=session["result"], result_id="guest")
@@ -297,14 +324,16 @@ def results_guest(): # use session data b/c these results won't be added to db
 
 @app.route("/results/<result_id>", methods=["GET", "POST"])
 @login_required
-def results(result_id): # use data from db b/c user is logged in
+def results(result_id):  # use data from db b/c user is logged in
     result_row = db.session.get(Results, result_id)
-    if not result_row: # if result id doesn't exist
+    if not result_row:  # if result id doesn't exist
         return render_template("error-404.html"), 404
-    elif current_user.id != result_row.user_id: # if user is trying to access a result that doesn't belong to them
+    # if user is trying to access a result that doesn't belong to them
+    elif current_user.id != result_row.user_id:
         return render_template("error-403.html"), 403
-    
-    search_query = result_row.search_query # search query, pmids, and titles will all be the same regardless of http method, so don't have to query db each time
+
+    # search query, pmids, and titles will all be the same regardless of http method, so don't have to query db each time
+    search_query = result_row.search_query
     pmids = result_row.pmids.split(",")
     titles = result_row.titles.split(",")
 
@@ -313,16 +342,17 @@ def results(result_id): # use data from db b/c user is logged in
         if "add-favorite" in request.form:
             result_row.favorite = 1
             db.session.commit()
-            return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=result_row.result, result_id=result_id, favorite=1)    
+            return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=result_row.result, result_id=result_id, favorite=1)
         if "remove-favorite" in request.form:
             result_row.favorite = 0
             db.session.commit()
             return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=result_row.result, result_id=result_id, favorite=0)
-        
+
         # adjust detail
-        detail = 1 if "increase" in request.form else -1 # 1 ~ increase; 2 ~ decrease
-        new_summary = get_summary(result_row.abstracts, detail, result_row.result)
-        result_row.result = new_summary # update result column for this row
+        detail = 1 if "increase" in request.form else -1  # 1 ~ increase; 2 ~ decrease
+        new_summary = get_summary(
+            result_row.abstracts, detail, result_row.result)
+        result_row.result = new_summary  # update result column for this row
         db.session.commit()
         return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=new_summary, result_id=result_id, favorite=result_row.favorite)
     return render_template("results.html", query=search_query, pmids=pmids, titles=titles, result=result_row.result, result_id=result_id, favorite=result_row.favorite)
@@ -399,15 +429,17 @@ def download_pdf(result_id):
         if not "search_query" in session:
             return render_template("error-404.html"), 404
         search_query = session["search_query"]
-        pdf = generate_pdf(search_query, session["pmids"].split(","), session["result"])
+        pdf = generate_pdf(
+            search_query, session["pmids"].split(","), session["result"])
     else:
         result_row = db.session.get(Results, result_id)
         if not result_row:
             return render_template("error-404.html"), 404
         else:
             search_query = result_row.search_query
-            pdf = generate_pdf(search_query, result_row.pmids.split(","), result_row.result)
-            
+            pdf = generate_pdf(
+                search_query, result_row.pmids.split(","), result_row.result)
+
     response = Response(pdf)
     response.headers["Content-Disposition"] = f"attachment; filename={search_query}.pdf"
     response.mimetype = "application/pdf"
@@ -419,7 +451,7 @@ def share_result(result_id):
     result_row = db.session.get(Results, result_id)
     if not result_row:
         return render_template("error-404.html"), 404
-    return render_template("share.html", query=result_row.search_query, pmids=result_row.pmids.split(","), 
+    return render_template("share.html", query=result_row.search_query, pmids=result_row.pmids.split(","),
                            titles=result_row.titles.split(","), result=result_row.result, result_id=result_id)
 
 
@@ -431,14 +463,14 @@ def result_api(result_id):
         return render_template("error-404.html"), 404
     elif current_user.id != result_row.user_id:
         return render_template("error-403.html"), 403
-    
+
     result = {
-        'id' : result_row.id,
-        'query' : result_row.search_query,
-        'pmids' : result_row.pmids,
-        'titles' : result_row.titles,
-        'result' : result_row.result,
-        'favorite' : result_row.favorite
+        'id': result_row.id,
+        'query': result_row.search_query,
+        'pmids': result_row.pmids,
+        'titles': result_row.titles,
+        'result': result_row.result,
+        'favorite': result_row.favorite
     }
     return jsonify(result)
 
@@ -457,6 +489,7 @@ def error_403(error):
 def error_500(error):
     return render_template("error-500.html"), 500
 
+
 @app.errorhandler(502)
 def error_502(error):
     return render_template("error-502.html"), 502
@@ -464,7 +497,8 @@ def error_502(error):
 
 def send_reset_email(user):
     token = user.generate_token()
-    msg = Message("PubSynth - Password Reset Request", sender=os.getenv('EMAIL_USER'), recipients=[user.email])
+    msg = Message("PubSynth - Password Reset Request",
+                  sender=os.getenv('EMAIL_USER'), recipients=[user.email])
     msg.body = f"""We have received a request to reset the password for your account.
 
 Visit the following link to reset your password: {url_for("reset_password", token=token, _external=True)}
@@ -475,6 +509,7 @@ Thank you,
 The PubSynth Team
     """
     mail.send(msg)
+
 
 def parse_abstracts(medline):
     ab, tmp, abstracts = False, "", ""
@@ -493,15 +528,17 @@ def parse_abstracts(medline):
 
 
 def get_pmids(search_query):
-    esearch_params = {"db": "pubmed", "term": search_query, "retmax": "3", "retmode": "json", "sort": "relevance"}
+    esearch_params = {"db": "pubmed", "term": search_query,
+                      "retmax": "3", "retmode": "json", "sort": "relevance"}
     esearch = requests.get(
         "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi", params=esearch_params)
     return ','.join(esearch.json()["esearchresult"]["idlist"])
 
 
 def get_titles(pmids):
-    esummary_params = {"db" : "pubmed", "id": pmids, "retmode" : "json"}
-    esummary = requests.get("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi", params=esummary_params).json()
+    esummary_params = {"db": "pubmed", "id": pmids, "retmode": "json"}
+    esummary = requests.get(
+        "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi", params=esummary_params).json()
     titles = []
     for pmid in pmids.split(","):
         titles.append(esummary["result"][pmid]["title"].rstrip("."))
@@ -509,7 +546,8 @@ def get_titles(pmids):
 
 
 def get_abstracts(pmids):
-    efetch_params = {"db" : "pubmed", "id" : pmids, "rettype" : "medline", "retmode" : "text"}
+    efetch_params = {"db": "pubmed", "id": pmids,
+                     "rettype": "medline", "retmode": "text"}
     efetch = requests.get(
         "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi", params=efetch_params)
     return parse_abstracts(efetch.text)
@@ -534,8 +572,8 @@ shorter response length compared to last time. Each abstract begins with #####: 
         model="gpt-3.5-turbo",
         messages=[
             {
-                "role" : "assistant",
-                "content" : prompt + abstracts
+                "role": "assistant",
+                "content": prompt + abstracts
             }
         ]
     )
@@ -543,7 +581,8 @@ shorter response length compared to last time. Each abstract begins with #####: 
 
 
 def generate_pdf(query, pmids, result):
-    render = render_template("download.html", query=query, pmids=pmids, result=result)
+    render = render_template(
+        "download.html", query=query, pmids=pmids, result=result)
     options = {
         'page-size': 'Letter',
         'margin-top': '0.75in',
